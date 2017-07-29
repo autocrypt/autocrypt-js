@@ -1,0 +1,24 @@
+{
+  "name": "autocrypt",
+  "version": "1.0.0",
+  "description": "Autocrypt node.js client",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/karissa/autocrypt-js.git"
+  },
+  "keywords": [
+    "autocrypt",
+    "encryption",
+    "email"
+  ],
+  "author": "Karissa McKelvey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/karissa/autocrypt-js/issues"
+  },
+  "homepage": "https://github.com/karissa/autocrypt-js#readme"
+}
