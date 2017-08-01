@@ -1,9 +1,13 @@
+var debug = require('debug')('autocrypt')
+var path = require('path')
+var level = require('level')
+
 module.exports = Autocrypt
 
 function Autocrypt (opts) {
-  if (!this instanceof Autocrypt) return new Autocrypt(opts)
+  if (!(this instanceof Autocrypt)) return new Autocrypt(opts)
+  if (!opts) opts = {}
   this.storage = opts.storage || defaultStorage()
-
 }
 
 /**
@@ -14,9 +18,11 @@ function Autocrypt (opts) {
  * @param  {Function} cb         Callback function
  */
 Autocrypt.prototype.processHeader = function (header, fromEmail, dateSent, cb) {
+  debug('getting record for:', fromEmail)
   this.storage.get(fromEmail, function (err, record) {
     if (err) return _done(err)
     if (dateSent < record.last_seen_autocrypt) return _done()
+    debug('got record for:', fromEmail, record)
 
     var error
     if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as sent email address.')
@@ -32,6 +38,7 @@ Autocrypt.prototype.processHeader = function (header, fromEmail, dateSent, cb) {
       type: '1'
     }
 
+    debug('updating record:', fromEmail, updatedRecord)
     // when valid
     this.storage.put(fromEmail, updatedRecord, _done)
 
@@ -42,4 +49,8 @@ Autocrypt.prototype.processHeader = function (header, fromEmail, dateSent, cb) {
 
   })
 
+}
+
+function defaultStorage () {
+  return level(path.join(__dirname, 'autocrypt-data'), {valueEcoding: 'json'})
 }
