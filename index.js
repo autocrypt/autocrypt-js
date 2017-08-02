@@ -1,4 +1,5 @@
 var debug = require('debug')('autocrypt')
+var Mailparser = require('emailjs-mime-parser')
 var path = require('path')
 var level = require('level')
 
@@ -11,23 +12,91 @@ function Autocrypt (opts) {
 }
 
 /**
+ * Turn an object into a string representation of autocrypt headers.
+ * @param  {Object} headers The headers to add.
+ * @return {String}         A String representation of the headers to add to an email mime header.
+ */
+Autocrypt.stringify = function (headers) {
+  var ret = ''
+  for (var key in headers) {
+    if (key === 'keydata') continue
+    var value = headers[key]
+    ret += `${key}=${value};`
+  }
+  ret += `keydata=${new Buffer(headers['keydata']).toString('base64')};`
+  return ret
+}
+
+/**
+ * Parse an autorypt header
+ * @param  {String} header An autocrypt header.
+ * @return {Object}        Return all values as an object.
+ */
+Autocrypt.parse = function (header) {
+  var parts = header.split(';')
+  var ret = {}
+  parts.forEach(function (part) {
+    var breakpoint = part.indexOf('=')
+    var key = part.substring(0, breakpoint)
+    var value = part.substring(breakpoint + 1)
+    ret[key] = value
+  })
+  ret.keydata = Buffer.from(ret.keydata, 'base64').toString()
+  return ret
+}
+
+
+/**
+ * Process an incoming email string, process the autocrypt headers and give information.
+ * @param  {String}   email An incoming email string with all headers, including date, from, and to.
+ * @param  {Function} cb    Callback
+ */
+Autocrypt.prototype.processEmail = function (email, cb) {
+  var self = this
+  var parser = new Mailparser()
+  var error
+
+  function _done (err) {
+    error = err
+    parser.end()
+  }
+
+  parser.onheader = function (node) {
+    var fromEmail = node.headers.from[0].initial
+    var dateSent = node.headers.date[0].initial
+    var autocryptHeader = node.headers.autocrypt
+    if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))
+    else autocryptHeader = autocryptHeader[0].initial
+    self.processAutocryptHeader(autocryptHeader, fromEmail, dateSent, _done)
+  }
+  parser.onend = function () {
+    cb(error)
+  }
+  parser.write(email)
+}
+
+/**
  * Process an incoming Autocrypt header and add it to the internal log.
  * @param  {Object}   header     The parsed 'Autocrypt' email header.
  * @param  {String}   fromEmail  The email the header was sent from.
  * @param  {Integer}   dateSent  Unix timestamp of date sent.
  * @param  {Function} cb         Callback function
  */
-Autocrypt.prototype.processHeader = function (header, fromEmail, dateSent, cb) {
+Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSent, cb) {
   var self = this
   debug('getting record for:', fromEmail)
+  if (typeof header === 'string') header = Autocrypt.parse(header)
+  debug('header is', header)
   self.storage.get(fromEmail, function (err, record) {
     if (err && !err.notFound) return _done(err)
     if (record && (dateSent < record.last_seen_autocrypt)) return _done()
     debug('got record for:', fromEmail, record)
 
     var error
+    if (!header) error = new Error('Invalid Autocrypt Header: no valid header found')
     if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    if (header.type !== '1') error = new Error('Invalid Autocrypt Header: the only supported type is 1.')
+    if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
+    if (header.type !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
     if (error) {
       debug('got an error', error)
       return self.storage.put(fromEmail, {last_seen: dateSent, state: 'reset'}, _done)
@@ -39,7 +108,8 @@ Autocrypt.prototype.processHeader = function (header, fromEmail, dateSent, cb) {
       keydata: header.keydata,
       state: header['prefer-encrypt'] === 'mutual' ? 'mutual' : 'nopreference',
       fpr: header.fpr,
-      type: '1'
+      type: '1',
+      addr: header.addr
     }
 
     debug('updating record:', fromEmail, updatedRecord)

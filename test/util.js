@@ -24,5 +24,5 @@ module.exports = {
         rimraf(dir, cb)
       })
     }
-  }
+  },
 }
