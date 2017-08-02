@@ -10,7 +10,7 @@ A WIP Node.js implementation of the Autocrypt specification.
 ### ```Autocrypt(opts)```
 
 Options include:
-* `storage = {put(fromEmail), get(fromEmail, data)}`
+* `storage = {get(fromEmail, cb), put(fromEmail, data, cb)}`
 
 ```js
 var Autocrypt = require('autocrypt')
