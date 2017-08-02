@@ -1,14 +1,16 @@
 # autocrypt-js
-A Node.js implementation of the Autocrypt spec.
+
+A WIP Node.js implementation of the Autocrypt specification. 
+
+[![Travis](https://travis-ci.org/karissa/autocrypt-js.svg?branch=master)](https://travis-ci.org/autocrypt-js) | [![NPM version](https://img.shields.io/npm/v/autocrypt.svg)](https://npmjs.org/package/autocrypt)
+
 
 ## API
 
-
-## ```Autocrypt(opts)```
+### ```Autocrypt(opts)```
 
 Options include:
-* `getPGPKeyForEmail = function (emailAddr, function (publicKey, privateKey) {})`
-* `storage = {appendUser(headers), updateUser(headers, data), findUser(email)}`
+* `storage = {put(fromEmail), get(fromEmail, data)}`
 
 ```js
 var Autocrypt = require('autocrypt')
@@ -16,6 +18,4 @@ var Autocrypt = require('autocrypt')
 // options for internal storage and encryption. comes with some basic defaults
 var autocrypt = new Autocrypt(opts)
 autocrypt.processHeader(header, email, dateSent, cb)
-autocrypt.getPublicKey(email, cb)
-autocrypt.generateHeader(fromEmail, toEmail, cb)
 ```
