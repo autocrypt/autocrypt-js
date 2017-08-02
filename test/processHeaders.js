@@ -1,89 +1,68 @@
-var autocrypt = require('..')
-var openpgp = require('openpgp')
+var setup = require('./util').setup
 var test = require('tape')
 
-function setup (cb) {
-  console.log('generating key')
-  openpgp.generateKey({
-    userIds: [{ name: 'Jon Smith', email: 'jon@example.com'}],
-    numBits: 4096,
-    passphrase: 'super long and hard to guess'
-  }).then(cb).catch(function (err) {
-    throw err
-  })
-}
+var fromAddr = 'jon@example.com'
 
 test('valid header is parsed and user added', function (t) {
-  // Create autocrypt connection to email log.
-  var crypt = autocrypt()
-
-  // Incoming valid email header. Process it and add it to the log.
-  setup((key) => {
+  setup(fromAddr, (crypt, key, done) => {
+    // Incoming valid email header. Process it and add it to the log.
     var header = {
       keydata: key.publicKeyArmored,
       type: '1',
       'prefer-encrypt': 'mutual',
-      'addr': 'jon@example.com'
+      'addr': fromAddr
     }
     var dateSent = new Date().getTime() / 1000
-    console.log('set up')
-    crypt.processHeader(header, 'jon@example.com', dateSent, (err) => {
+    crypt.processHeader(header, fromAddr, dateSent, (err) => {
       t.ifError(err, 'no error')
-      crypt.storage.get(fromAddr, (err, otherKey) => {
-        t.same(otherKey, key.publicKeyArmored, 'public key for incoming mail is stored correctly')
-        t.end()
+      crypt.storage.get(fromAddr, (err, record) => {
+        t.ifError(err)
+        t.same(record.keydata, key.publicKeyArmored, 'public key for incoming mail is stored correctly')
+        done(() => t.end())
       })
     })
   })
 })
 
 test('invalid headers: email not same as header.addr', function (t) {
-  // Create autocrypt connection to email log.
-  var crypt = autocrypt()
-
-  // Incoming valid email header. Process it and add it to the log.
-  setup((key) => {
+  setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key.publicKeyArmored,
       type: '1',
       'prefer-encrypt': 'mutual',
-      'addr': 'jon@example.com'
+      'addr': fromAddr
     }
     var dateSent = new Date().getTime() / 1000
     crypt.processHeader(header, 'notthesame@gmail.com', dateSent , (err) => {
       t.ok(err, 'there should be an error')
-      t.same(err.message, 'Invalid Autocrypt Header: "addr" not the same as from email.')
+      t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
 
-      crypt.storage.get(fromAddr, (err, record) => {
+      crypt.storage.get('notthesame@gmail.com', (err, record) => {
         t.ifError(err)
         t.same(record.state, 'reset')
-        t.end()
+        done(() => t.end())
       })
     })
   })
 })
 
 test('invalid headers: type 1 is only supported type', function (t) {
-  // Create autocrypt connection to email log.
-  var crypt = autocrypt()
-
-  // Incoming valid email header. Process it and add it to the log.
-  setup((key) => {
+  setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key.publicKeyArmored,
       type: '4',
       'prefer-encrypt': 'mutual',
-      'addr': 'jon@example.com'
+      'addr': fromAddr
     }
     var dateSent = new Date().getTime() / 1000
-    crypt.processHeader(header, 'jon@example.com', dateSent, (err) => {
+    crypt.processHeader(header, fromAddr, dateSent, (err) => {
       t.ok(err, 'there should be an error')
-      t.same(err.message, 'Invalid Autocrypt Header: the only supported "type" is 1.')
+      t.same(err.message, 'Invalid Autocrypt Header: the only supported type is 1.')
 
       crypt.storage.get(fromAddr, (err, record) => {
         t.ifError(err)
         t.same(record.state, 'reset')
-        t.end()
+        done(() => t.end())
       })
     })
   })

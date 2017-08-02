@@ -19,4 +19,3 @@ autocrypt.processHeader(header, email, dateSent, cb)
 autocrypt.getPublicKey(email, cb)
 autocrypt.generateHeader(fromEmail, toEmail, cb)
 ```
-

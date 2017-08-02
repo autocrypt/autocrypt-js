@@ -4,7 +4,7 @@
   "description": "Autocrypt node.js client",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*"
+    "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/karissa/autocrypt-js#readme",
   "devDependencies": {
     "openpgp": "^2.5.8",
+    "rimraf": "^2.6.1",
     "tape": "^4.8.0"
   },
   "dependencies": {
