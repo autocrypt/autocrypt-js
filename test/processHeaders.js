@@ -136,3 +136,67 @@ test('invalid headers: only one autocrypt header allowed', function (t) {
     })
   })
 })
+
+test('invalid headers: email not same as header.addr', function (t) {
+  setup(fromAddr, (crypt, key, done) => {
+    var headers = {
+      'from': 'notthesame@gmail.com',
+      'date': new Date().getTime() / 1000,
+      'Autocrypt': Autocrypt.stringify({
+        keydata: key.publicKeyArmored,
+        type: '1',
+        'prefer-encrypt': 'mutual',
+        'addr': fromAddr
+      })
+    }
+
+    var mime = new MimeBuilder("text/plain").
+      setHeader(headers).
+      setContent('Hello World!').
+      build()
+
+    var dateSent = new Date().getTime() / 1000
+    crypt.processEmail(mime, (err) => {
+      t.ok(err, 'there should be an error')
+      t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
+
+      crypt.storage.get('notthesame@gmail.com', (err, record) => {
+        t.ifError(err)
+        t.same(record.state, 'reset')
+        done(() => t.end())
+      })
+    })
+  })
+})
+
+test('invalid headers: header.addr not same as email', function (t) {
+  setup(fromAddr, (crypt, key, done) => {
+    var headers = {
+      'from': fromAddr,
+      'date': new Date().getTime() / 1000,
+      'Autocrypt': Autocrypt.stringify({
+        keydata: key.publicKeyArmored,
+        type: '1',
+        'prefer-encrypt': 'mutual',
+        'addr': 'notthesame@gmail.com'
+      })
+    }
+
+    var mime = new MimeBuilder("text/plain").
+      setHeader(headers).
+      setContent('Hello World!').
+      build()
+
+    var dateSent = new Date().getTime() / 1000
+    crypt.processEmail(mime, (err) => {
+      t.ok(err, 'there should be an error')
+      t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
+
+      crypt.storage.get(fromAddr, (err, record) => {
+        t.ifError(err)
+        t.same(record.state, 'reset')
+        done(() => t.end())
+      })
+    })
+  })
+})
