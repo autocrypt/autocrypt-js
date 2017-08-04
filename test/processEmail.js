@@ -5,7 +5,7 @@ var test = require('tape')
 
 var fromAddr = 'jon@example.com'
 
-test('valid headers: process incoming email header', function (t) {
+test('processEmail: process incoming email header', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       'from': fromAddr,
@@ -38,7 +38,7 @@ test('valid headers: process incoming email header', function (t) {
   })
 })
 
-test('invalid headers: only one autocrypt header allowed', function (t) {
+test('processEmail: only one autocrypt header allowed', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var autocryptHeader = Autocrypt.stringify({
       keydata: key.publicKeyArmored,
@@ -71,7 +71,7 @@ test('invalid headers: only one autocrypt header allowed', function (t) {
   })
 })
 
-test('invalid headers: email not same as header.addr', function (t) {
+test('processEmail: email not same as header.addr', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var headers = {
       'from': 'notthesame@gmail.com',
@@ -104,7 +104,7 @@ test('invalid headers: email not same as header.addr', function (t) {
 })
 
 
-test('invalid headers: header.addr not same as email', function (t) {
+test('processEmail: header.addr not same as email', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var headers = {
       'from': fromAddr,

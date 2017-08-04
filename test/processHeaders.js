@@ -4,7 +4,7 @@ var test = require('tape')
 
 var fromAddr = 'jon@example.com'
 
-test('valid header is parsed and user added', function (t) {
+test('processAutocryptHeader: is parsed and user added', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     // Incoming valid email header. Process it and add it to the log.
     var header = {
@@ -25,7 +25,7 @@ test('valid header is parsed and user added', function (t) {
   })
 })
 
-test('invalid headers: email not same as header.addr', function (t) {
+test('processAutocryptHeader: email not same as header.addr', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key.publicKeyArmored,
@@ -47,7 +47,7 @@ test('invalid headers: email not same as header.addr', function (t) {
   })
 })
 
-test('invalid headers: type 1 is only supported type', function (t) {
+test('processAutocryptHeader: type 1 is only supported type', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key.publicKeyArmored,
