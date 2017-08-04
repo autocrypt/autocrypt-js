@@ -4,7 +4,7 @@
   "description": "Autocrypt node.js client",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape test/*.js | tap-spec"
   },
   "repository": {
     "type": "git",
