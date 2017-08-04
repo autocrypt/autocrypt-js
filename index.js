@@ -62,8 +62,9 @@ Autocrypt.prototype.processEmail = function (email, cb) {
   }
 
   parser.onheader = function (node) {
-    var fromEmail = node.headers.from[0].initial
-    var dateSent = node.headers.date[0].initial
+    if (!node.headers.from || !node.headers.date) return _done(new Error('No from and date field, is that expected behavior?'))
+    var fromEmail = node.headers.from[0].initial // TODO: should check value. what happens if from two people? 
+    var dateSent = node.headers.date[0].value
     var autocryptHeader = node.headers.autocrypt
     if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))
     else autocryptHeader = autocryptHeader[0].initial
