@@ -23,7 +23,7 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  ret += `keydata=${new Buffer(headers['keydata']).toString('base64')};`
+  if (headers['keydata']) ret += `keydata=${new Buffer(headers['keydata']).toString('base64')};`
   return ret
 }
 
@@ -41,7 +41,7 @@ Autocrypt.parse = function (header) {
     var value = part.substring(breakpoint + 1)
     ret[key] = value
   })
-  ret.keydata = Buffer.from(ret.keydata, 'base64').toString()
+  if (ret.keydata) ret.keydata = Buffer.from(ret.keydata, 'base64').toString()
   return ret
 }
 
@@ -50,15 +50,15 @@ Autocrypt.prototype.add = function (email, publicKey, cb) {
   self.storage.put(email, {keydata: publicKey}, cb)
 }
 
-Autocrypt.prototype.get = function (email, publicKey, cb) {
+Autocrypt.prototype.get = function (email, cb) {
   var self = this
   self.storage.get(email, cb)
 }
 
 Autocrypt.recommendation = function (from, to) {
   // TODO: expired public key
-  if (!to.keydata) return 'disable'
-  if (to['state'] === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
+  if (!to || to.keydata) return 'disable'
+  if (to['state'] === 'mutual' && from['state'] === 'mutual') return 'encrypt'
   if (to['state'] === 'gossip') return 'discourage'
   var oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -79,16 +79,16 @@ Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
   self.get(fromEmail, function (err, from) {
     if (err) return cb(err)
     self.get(toEmail, function (err, to) {
-      if (err) return cb(err)
+      if (err && !err.notFound) return cb(err)
       return cb(null, {
         header: Autocrypt.stringify({
           addr: fromEmail,
           type: '1',
           keydata: from.keydata,
           'prefer-encrypt': 'mutual'
-        })),
-        recommendation: self.getRecommendation(from, to)
-      }
+        }),
+        recommendation: Autocrypt.recommendation(from, to)
+      })
     })
   })
 
