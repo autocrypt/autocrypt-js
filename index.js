@@ -28,7 +28,7 @@ Autocrypt.stringify = function (headers) {
 }
 
 /**
- * Parse an autorypt header
+ * Parse an autocrypt header
  * @param  {String} header An autocrypt header.
  * @return {Object}        Return all values as an object.
  */
@@ -45,6 +45,54 @@ Autocrypt.parse = function (header) {
   return ret
 }
 
+Autocrypt.prototype.add = function (email, publicKey, cb) {
+  var self = this
+  self.storage.put(email, {keydata: publicKey}, cb)
+}
+
+Autocrypt.prototype.get = function (email, publicKey, cb) {
+  var self = this
+  self.storage.get(email, cb)
+}
+
+Autocrypt.recommendation = function (from, to) {
+  // TODO: expired public key
+  if (!to.keydata) return 'disable'
+  if (to['state'] === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
+  if (to['state'] === 'gossip') return 'discourage'
+  var oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  if (to['state'] === 'reset' && to['last_seen_autocrypt'] < oneMonthAgo) return 'discourage'
+  return 'available'
+}
+
+/**
+ * Generate an autocrypt header for given from and to email addresses.
+ * This header is meant to be sent from the first email to the second email
+ * as the full string after the `Autocrypt:` key in the email header.
+ * @param  {String}   fromEmail The email address we are sending the header from.
+ * @param  {String}   toEmail   The email address we are sending the header to.
+ * @param  {Function} cb        [description]
+ */
+Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
+  var self = this
+  self.get(fromEmail, function (err, from) {
+    if (err) return cb(err)
+    self.get(toEmail, function (err, to) {
+      if (err) return cb(err)
+      return cb(null, {
+        header: Autocrypt.stringify({
+          addr: fromEmail,
+          type: '1',
+          keydata: from.keydata,
+          'prefer-encrypt': 'mutual'
+        })),
+        recommendation: self.getRecommendation(from, to)
+      }
+    })
+  })
+
+}
 
 /**
  * Process an incoming email string, process the autocrypt headers and give information.
@@ -63,7 +111,7 @@ Autocrypt.prototype.processEmail = function (email, cb) {
 
   parser.onheader = function (node) {
     if (!node.headers.from || !node.headers.date) return _done(new Error('No from and date field, is that expected behavior?'))
-    var fromEmail = node.headers.from[0].initial // TODO: should check value. what happens if from two people? 
+    var fromEmail = node.headers.from[0].initial // TODO: should check value. what happens if from two people?
     var dateSent = node.headers.date[0].value
     var autocryptHeader = node.headers.autocrypt
     if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))

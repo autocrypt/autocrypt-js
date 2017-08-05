@@ -5,7 +5,7 @@ var rimraf = require('rimraf')
 
 module.exports = {
   setup: function (fromAddr, cb) {
-    var dir = path.join(__dirname, 'autocrypt-test.db')
+    var dir = path.join(__dirname, fromAddr + '-autocrypt-test.db')
     rimraf.sync(dir)
     var crypt = autocrypt({dir: dir})
     openpgp.initWorker({ path:'openpgp.worker.js' }) // set the relative web worker path
