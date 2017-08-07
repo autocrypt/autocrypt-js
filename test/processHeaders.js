@@ -13,8 +13,7 @@ test('processAutocryptHeader: is parsed and user added', function (t) {
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
-    var dateSent = new Date().getTime() / 1000
-    crypt.processAutocryptHeader(header, fromAddr, dateSent, (err) => {
+    crypt.processAutocryptHeader(header, fromAddr, new Date(), (err) => {
       t.ifError(err, 'no error')
       crypt.storage.get(fromAddr, (err, record) => {
         t.ifError(err)
@@ -33,8 +32,7 @@ test('processAutocryptHeader: email not same as header.addr', function (t) {
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
-    var dateSent = new Date().getTime() / 1000
-    crypt.processAutocryptHeader(header, 'notthesame@gmail.com', dateSent , (err) => {
+    crypt.processAutocryptHeader(header, 'notthesame@gmail.com', new Date(), (err) => {
       t.ok(err, 'there should be an error')
       t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
 
@@ -55,8 +53,7 @@ test('processAutocryptHeader: type 1 is only supported type', function (t) {
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
-    var dateSent = new Date().getTime() / 1000
-    crypt.processAutocryptHeader(header, fromAddr, dateSent, (err) => {
+    crypt.processAutocryptHeader(header, fromAddr, new Date(), (err) => {
       t.ok(err, 'there should be an error')
       t.same(err.message, 'Invalid Autocrypt Header: the only supported type is 1. Got 4')
 

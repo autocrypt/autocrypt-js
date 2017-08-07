@@ -45,23 +45,13 @@ Autocrypt.parse = function (header) {
   return ret
 }
 
-Autocrypt.prototype.add = function (email, publicKey, cb) {
-  var self = this
-  self.storage.put(email, {keydata: publicKey}, cb)
-}
-
-Autocrypt.prototype.get = function (email, cb) {
-  var self = this
-  self.storage.get(email, cb)
-}
-
 Autocrypt.recommendation = function (from, to) {
   // TODO: expired public key
   if (!to || to.keydata) return 'disable'
-  if (to['state'] === 'mutual' && from['state'] === 'mutual') return 'encrypt'
+  if (to['state'] === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
   if (to['state'] === 'gossip') return 'discourage'
-  var oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  var oneMonthAgo = new Date()
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
   if (to['state'] === 'reset' && to['last_seen_autocrypt'] < oneMonthAgo) return 'discourage'
   return 'available'
 }
@@ -112,7 +102,7 @@ Autocrypt.prototype.processEmail = function (email, cb) {
   parser.onheader = function (node) {
     if (!node.headers.from || !node.headers.date) return _done(new Error('No from and date field, is that expected behavior?'))
     var fromEmail = node.headers.from[0].initial // TODO: should check value. what happens if from two people?
-    var dateSent = node.headers.date[0].value
+    var dateSent = new Date(node.headers.date[0].value)
     var autocryptHeader = node.headers.autocrypt
     if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))
     else autocryptHeader = autocryptHeader[0].initial
@@ -128,12 +118,13 @@ Autocrypt.prototype.processEmail = function (email, cb) {
  * Process an incoming Autocrypt header and add it to the internal log.
  * @param  {Object}   header     The parsed 'Autocrypt' email header.
  * @param  {String}   fromEmail  The email the header was sent from.
- * @param  {Integer}   dateSent  Unix timestamp of date sent.
+ * @param  {DateTime}   dateSent  JavaScript Date object of date sent.
  * @param  {Function} cb         Callback function
  */
 Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSent, cb) {
   var self = this
   debug('getting record for:', fromEmail)
+  var timestamp = dateSent.getTime() / 1000
   if (typeof header === 'string') header = Autocrypt.parse(header)
   debug('header is', header)
   self.storage.get(fromEmail, function (err, record) {
@@ -148,12 +139,12 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
     if (header.type !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
     if (error) {
       debug('got an error', error)
-      return self.storage.put(fromEmail, {last_seen: dateSent, state: 'reset'}, _done)
+      return self.storage.put(fromEmail, {last_seen: timestamp, state: 'reset'}, _done)
     }
 
     var updatedRecord = {
-      last_seen: dateSent,
-      last_seen_autocrypt: dateSent,
+      last_seen: timestamp,
+      last_seen_autocrypt: timestamp,
       keydata: header.keydata,
       state: header['prefer-encrypt'] === 'mutual' ? 'mutual' : 'nopreference',
       fpr: header.fpr,
