@@ -8,7 +8,7 @@ var alice = 'alice@example.com'
 setup(bob, (crypt, bobKey, doneBob) => {
   setup(alice, (crypt, aliceKey, doneAlice) => {
     test('generateHeader: generate a header from bob to alice', function (t) {
-      crypt.add(bob, bobKey.publicKey, function (err) {
+      crypt.storage.put(bob, {keydata: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
         t.ifError(err)
         // bob sends alice an email
         crypt.generateHeader(bob, alice, function (err, val) {
@@ -19,15 +19,19 @@ setup(bob, (crypt, bobKey, doneBob) => {
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'mutual')
           t.same(val.recommendation, 'disable')
-          t.end()
+          // bob sends alice an autocrypt email and she processes it.
+          crypt.processAutocryptHeader(vals, bob, new Date(), function (err) {
+            t.ifError(err)
+            t.end()
+          })
         })
       })
     })
 
     test('generateHeader: generate a header from alice to bob', function (t) {
-      crypt.add(alice, aliceKey.publicKey, function (err) {
+      crypt.storage.put(alice, {keydata: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
         t.ifError(err)
-        // bob sends alice an email
+        // alice sends bob an email. should have bobs stuff from last time
         crypt.generateHeader(alice, bob, function (err, val) {
           t.ifError(err)
           var vals = Autocrypt.parse(val.header)

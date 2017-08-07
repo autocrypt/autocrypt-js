@@ -76,9 +76,9 @@ Autocrypt.recommendation = function (from, to) {
  */
 Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
   var self = this
-  self.get(fromEmail, function (err, from) {
+  self.storage.get(fromEmail, function (err, from) {
     if (err) return cb(err)
-    self.get(toEmail, function (err, to) {
+    self.storage.get(toEmail, function (err, to) {
       if (err && !err.notFound) return cb(err)
       return cb(null, {
         header: Autocrypt.stringify({
