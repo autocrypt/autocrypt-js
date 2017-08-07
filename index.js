@@ -53,7 +53,7 @@ Autocrypt.recommendation = function (from, to) {
   if (to.state === 'gossip') return 'discourage'
   var oneMonthAgo = new Date()
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-  if (to.state === 'reset' && to.last_seen_autocrypt < oneMonthAgo) return 'discourage'
+  if (to.state === 'reset' && to.last_seen_autocrypt < oneMonthAgo.getTime() / 1000) return 'discourage'
   return 'available'
 }
 
@@ -114,7 +114,7 @@ Autocrypt.prototype.processEmail = function (email, cb) {
     var dateSent = new Date(node.headers.date[0].value)
     var autocryptHeader = node.headers.autocrypt
     if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))
-    else autocryptHeader = autocryptHeader[0].initial
+    else autocryptHeader = autocryptHeader ? autocryptHeader[0].initial : null
     self.processAutocryptHeader(autocryptHeader, fromEmail, dateSent, _done)
   }
   parser.onend = function () {
@@ -143,12 +143,12 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
 
     var error
     if (!header) error = new Error('Invalid Autocrypt Header: no valid header found')
-    if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    if (header.type !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
+    else if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
+    else if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
+    else if (header.type !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
     if (error) {
       debug('got an error', error)
-      return self.storage.put(fromEmail, {last_seen: timestamp, state: 'reset'}, _done)
+      return self.storage.put(fromEmail, xtend(record, {last_seen: timestamp, state: 'reset'}), _done)
     }
 
     var updatedRecord = {
