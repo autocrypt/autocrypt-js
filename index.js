@@ -65,6 +65,14 @@ Autocrypt.prototype.appendUser = function (fromEmail, data, cb) {
   self.storage.put(fromEmail, xtend(defaults, data), cb)
 }
 
+Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
+  var self = this
+  self.storage.get(fromEmail, function (err, user) {
+    if (err) return cb(err)
+    self.storage.put(fromEmail, xtend(user, data), cb)
+  })
+}
+
 /**
  * Generate an autocrypt header for given from and to email addresses.
  * This header is meant to be sent from the first email to the second email
@@ -90,7 +98,6 @@ Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
       })
     })
   })
-
 }
 
 /**

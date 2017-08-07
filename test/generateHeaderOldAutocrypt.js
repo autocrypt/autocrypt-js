@@ -5,17 +5,9 @@ var test = require('tape')
 var bob = 'bob@example.com'
 var alice = 'alice@example.com'
 
-
 setup(bob, (bobCrypt, bobKey, doneBob) => {
   setup(alice, (aliceCrypt, aliceKey, doneAlice) => {
-    test('generateHeader: generate and process a header from bob to alice', function (t) {
-      bobCrypt.generateHeader(bob, alice, function (err) {
-        t.ok(err)
-        t.end()
-      })
-    })
-
-    test('generateHeader: generate and process a header from bob to alice', function (t) {
+    test('generateHeader: generate and process a header three months ago from bob to alice', function (t) {
       bobCrypt.appendUser(bob, {public_key: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
         aliceCrypt.appendUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
@@ -29,7 +21,9 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
             t.same(vals['prefer-encrypt'], 'mutual')
             t.same(val.recommendation, 'disable')
             // bob sends alice an autocrypt email and she processes it.
-            aliceCrypt.processAutocryptHeader(vals, bob, new Date(), function (err) {
+            var dateSent = new Date()
+            dateSent.setMonth(dateSent.getMonth() - 3)
+            aliceCrypt.processAutocryptHeader(vals, bob, dateSent, function (err) {
               t.ifError(err)
               t.end()
             })
@@ -38,37 +32,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
       })
     })
 
-    test('generateHeader: generate a header from alice to bob', function (t) {
-      // alice sends bob an email. should have bobs stuff from last time
-      aliceCrypt.generateHeader(alice, bob, function (err, val) {
-        t.ifError(err)
-        var vals = Autocrypt.parse(val.header)
-        t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
-        t.same(vals.addr, alice, 'public key is for alice')
-        t.same(vals.type, '1', 'type is 1')
-        t.same(vals['prefer-encrypt'], 'mutual')
-        t.same(val.recommendation, 'encrypt')
-        t.end()
-      })
-    })
-
-    test('generateHeader: alice turns off autocrypt, recommendation is available', function (t) {
-      // alice sends bob an email. should have bobs stuff from last time
-      aliceCrypt.updateUser(alice, {'prefer-encrypt': 'nopreference'}, function (err) {
-        aliceCrypt.generateHeader(alice, bob, function (err, val) {
-          t.ifError(err)
-          var vals = Autocrypt.parse(val.header)
-          t.same(vals.keydata, aliceKey.publicKey, 'alices public key is in the header')
-          t.same(vals.addr, alice, 'email is for alice')
-          t.same(vals.type, '1', 'type is 1')
-          t.same(vals['prefer-encrypt'], 'nopreference')
-          t.same(val.recommendation, 'available')
-          t.end()
-        })
-      })
-    })
-
-    test('generateHeader: bob turns off autocrypt, recommendation is available', function (t) {
+    test('generateHeader: alice receives new email from bob without autocrypt, recommendation is discourage', function (t) {
       // bob sends alice an email with no autocrypt header
       var dateSent = new Date()
       aliceCrypt.processAutocryptHeader(null, bob, dateSent, function (err, val) {
@@ -84,8 +48,8 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
-          t.same(vals['prefer-encrypt'], 'nopreference')
-          t.same(val.recommendation, 'available')
+          t.same(vals['prefer-encrypt'], 'mutual')
+          t.same(val.recommendation, 'discourage')
           t.end()
         })
       })
