@@ -1,3 +1,4 @@
+var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
 var Mailparser = require('emailjs-mime-parser')
 var path = require('path')
@@ -23,7 +24,7 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (headers['keydata']) ret += `keydata=${new Buffer(headers['keydata']).toString('base64')};`
+  if (headers.keydata) ret += `keydata=${new Buffer(headers.keydata).toString('base64')};`
   return ret
 }
 
@@ -48,12 +49,20 @@ Autocrypt.parse = function (header) {
 Autocrypt.recommendation = function (from, to) {
   // TODO: expired public key
   if (!to || to.keydata) return 'disable'
-  if (to['state'] === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
-  if (to['state'] === 'gossip') return 'discourage'
+  if (to.state === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
+  if (to.state === 'gossip') return 'discourage'
   var oneMonthAgo = new Date()
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-  if (to['state'] === 'reset' && to['last_seen_autocrypt'] < oneMonthAgo) return 'discourage'
+  if (to.state === 'reset' && to.last_seen_autocrypt < oneMonthAgo) return 'discourage'
   return 'available'
+}
+
+Autocrypt.prototype.appendUser = function (fromEmail, data, cb) {
+  var self = this
+  var defaults = {
+    'prefer-encrypt': 'nopreference'
+  }
+  self.storage.put(fromEmail, xtend(defaults, data), cb)
 }
 
 /**
@@ -75,7 +84,7 @@ Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
           addr: fromEmail,
           type: '1',
           keydata: from.keydata,
-          'prefer-encrypt': 'mutual'
+          'prefer-encrypt': from['prefer-encrypt']
         }),
         recommendation: Autocrypt.recommendation(from, to)
       })
