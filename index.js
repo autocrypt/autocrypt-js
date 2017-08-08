@@ -6,6 +6,10 @@ var level = require('level')
 
 module.exports = Autocrypt
 
+/**
+ * A Node.js implementation of the Autocrypt specification.
+ * @param {Object} opts Options object
+ */
 function Autocrypt (opts) {
   if (!(this instanceof Autocrypt)) return new Autocrypt(opts)
   if (!opts) opts = {}
@@ -46,6 +50,12 @@ Autocrypt.parse = function (header) {
   return ret
 }
 
+/**
+ * Get the recommendation when emailing from one user to another.
+ * @param  {String}   fromEmail The from email address.. Must be a user added with `addUser`.
+ * @param  {String}   toEmail   The email address we are sending to.
+ * @param  {Function} cb        Callback will return the recommendation, one of `available`, `discourage`, `disable` , or `encrypt`
+ */
 Autocrypt.prototype.recommendation = function (fromEmail, toEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
@@ -66,6 +76,12 @@ Autocrypt.prototype.recommendation = function (fromEmail, toEmail, cb) {
   })
 }
 
+/**
+ * Add a user to the autocrypt.
+ * @param {String}   fromEmail The email address.
+ * @param {Object}   data      The data for the email address. `public_key` required.
+ * @param {Function} cb        Will return an error or nothing if successful.
+ */
 Autocrypt.prototype.addUser = function (fromEmail, data, cb) {
   var self = this
   var defaults = {
@@ -74,6 +90,12 @@ Autocrypt.prototype.addUser = function (fromEmail, data, cb) {
   self.storage.put(fromEmail, xtend(defaults, data), cb)
 }
 
+/**
+ * Update an autocrypt user.
+ * @param  {String}   fromEmail The email address.
+ * @param  {Object}   data      The data for the email address.
+ * @param  {Function} cb        Will return an error or nothing if successful.
+ */
 Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, user) {
