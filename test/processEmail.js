@@ -9,7 +9,7 @@ test('processEmail: process incoming email header', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       'from': fromAddr,
-      'date': new Date().getTime() / 1000,
+      'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
         keydata: key.publicKeyArmored,
         type: '1',
@@ -48,7 +48,7 @@ test('processEmail: only one autocrypt header allowed', function (t) {
     })
     var headers = {
       'from': fromAddr,
-      'date': new Date().getTime() / 1000,
+      'date': new Date()
     }
 
     var mime = new MimeBuilder("text/plain").
@@ -58,7 +58,6 @@ test('processEmail: only one autocrypt header allowed', function (t) {
       setContent('Hello World!').
       build()
 
-    var dateSent = new Date().getTime() / 1000
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')
       t.same(err.message, 'Invalid Autocrypt Header: Only one autocrypt header allowed.')
@@ -75,7 +74,7 @@ test('processEmail: email not same as header.addr', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var headers = {
       'from': 'notthesame@gmail.com',
-      'date': new Date().getTime() / 1000,
+      'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
         keydata: key.publicKeyArmored,
         type: '1',
@@ -89,7 +88,6 @@ test('processEmail: email not same as header.addr', function (t) {
       setContent('Hello World!').
       build()
 
-    var dateSent = new Date().getTime() / 1000
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')
       t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
@@ -108,7 +106,7 @@ test('processEmail: header.addr not same as email', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var headers = {
       'from': fromAddr,
-      'date': new Date().getTime() / 1000,
+      'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
         keydata: key.publicKeyArmored,
         type: '1',
@@ -122,7 +120,6 @@ test('processEmail: header.addr not same as email', function (t) {
       setContent('Hello World!').
       build()
 
-    var dateSent = new Date().getTime() / 1000
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')
       t.same(err.message, 'Invalid Autocrypt Header: addr not the same as from email.')
