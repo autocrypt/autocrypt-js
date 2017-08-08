@@ -17,7 +17,7 @@
     "email"
   ],
   "author": "Karissa McKelvey",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/karissa/autocrypt-js/issues"
   },
