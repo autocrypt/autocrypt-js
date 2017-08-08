@@ -1,24 +1,20 @@
 # autocrypt-js
 
-A WIP Node.js implementation of the Autocrypt specification.
+A Node.js implementation of the Autocrypt specification.
 
 [![Travis](https://travis-ci.org/karissa/autocrypt-js.svg?branch=master)](https://travis-ci.org/karissa/autocrypt-js) | [![NPM version](https://img.shields.io/npm/v/autocrypt.svg)](https://npmjs.org/package/autocrypt)
 
+```
+npm install autocrypt
+```
 
 ## API
 
-### ```Autocrypt(opts)```
+### ```var autocrypt = new Autocrypt(opts)```
 
 Options include:
 * `storage`: the storage to use for internal state. Must implement `get` and `put` methods. (example: `{get(fromEmail, cb), put(fromEmail, data, cb)}`)
 * `dir`: the directory for storing the internal state.
-
-```js
-var Autocrypt = require('autocrypt')
-
-// options for internal storage and encryption. comes with some basic defaults
-var autocrypt = new Autocrypt(opts)
-```
 
 ### ```autocrypt.processHeader(header, fromEmail, dateSent, cb)```
 
@@ -34,7 +30,7 @@ Take the full email string (including headers) and parse it using a built-in ema
 
 ### ```autocrypt.generateHeader(fromEmail, toEmail, cb)```
 
-Generate a string Autocrypt header given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method. 
+Generate a string Autocrypt header given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
 
 ### ```autocrypt.recommendation(fromEmail, toEmail, cb)```
 
