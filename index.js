@@ -46,15 +46,24 @@ Autocrypt.parse = function (header) {
   return ret
 }
 
-Autocrypt.recommendation = function (from, to) {
-  // TODO: expired public key
-  if (!to || to.keydata) return 'disable'
-  if (to.state === 'mutual' && from['prefer-encrypt'] === 'mutual') return 'encrypt'
-  if (to.state === 'gossip') return 'discourage'
-  var oneMonthAgo = new Date()
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
-  if (to.state === 'reset' && to.last_seen_autocrypt < oneMonthAgo.getTime() / 1000) return 'discourage'
-  return 'available'
+Autocrypt.prototype.recommendation = function (fromEmail, toEmail, cb) {
+  var self = this
+  self.storage.get(fromEmail, function (err, from) {
+    if (err) return cb(err)
+    self.storage.get(toEmail, function (err, to) {
+      if (err && !err.notFound) return cb(err)
+      var ret = 'available'
+      if (!to || to.keydata) ret = 'disable'
+      else if (to.state === 'mutual' && from['prefer-encrypt'] === 'mutual') ret = 'encrypt'
+      else if (to.state === 'gossip') ret = 'discourage'
+      else {
+        var oneMonthAgo = new Date()
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+        if (to.state === 'reset' && to.last_seen_autocrypt < oneMonthAgo.getTime() / 1000) ret = 'discourage'
+      }
+      cb(null, ret)
+    })
+  })
 }
 
 Autocrypt.prototype.addUser = function (fromEmail, data, cb) {
@@ -84,18 +93,17 @@ Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
 Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
-    if (err && !err.notFound) return cb(err)
+    if (err) return cb(err)
     self.storage.get(toEmail, function (err, to) {
       if (err && !err.notFound) return cb(err)
-      return cb(null, {
-        header: Autocrypt.stringify({
+      return cb(null,
+        Autocrypt.stringify({
           addr: fromEmail,
           type: '1',
           keydata: from.keydata,
           'prefer-encrypt': from['prefer-encrypt']
-        }),
-        recommendation: Autocrypt.recommendation(from, to)
-      })
+        })
+      )
     })
   })
 }
@@ -141,7 +149,7 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
   var self = this
   debug('getting record for:', fromEmail)
   var timestamp = dateSent.getTime() / 1000
-  if (typeof header === 'string') header = Autocrypt.parse(header)
+  if (header && typeof header === 'string') header = Autocrypt.parse(header)
   debug('header is', header)
   self.storage.get(fromEmail, function (err, record) {
     if (err && !err.notFound) return _done(err)

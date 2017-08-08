@@ -34,7 +34,11 @@ Take the full email string (including headers) and parse it using a built-in ema
 
 ### ```autocrypt.generateHeader(fromEmail, toEmail, cb)```
 
-Generate an autocrypt header given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
+Generate a string Autocrypt header given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method. 
+
+### ```autocrypt.recommendation(fromEmail, toEmail, cb)```
+
+Generate an autocrypt UI recommendation given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
 
 ### ```autocrypt.addUser(fromEmail, opts, cb)```
 
@@ -48,7 +52,9 @@ Add a user to autocrypt. This should be done for all new accounts.
 
 Update a user in autocrypt. Options are the same as `addUser`.
 
+
 ## Static Methods
+
 
 ### ```Autocrypt.stringify(header)```
 

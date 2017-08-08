@@ -20,18 +20,20 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
         aliceCrypt.addUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
-          bobCrypt.generateHeader(bob, alice, function (err, val) {
+          bobCrypt.generateHeader(bob, alice, function (err, header) {
             t.ifError(err)
-            var vals = Autocrypt.parse(val.header)
+            var vals = Autocrypt.parse(header)
             t.same(vals.keydata, bobKey.publicKey, 'bobs public key is in the header')
             t.same(vals.addr, bob, 'public key is for bob')
             t.same(vals.type, '1', 'type is 1')
             t.same(vals['prefer-encrypt'], 'mutual')
-            t.same(val.recommendation, 'disable')
-            // bob sends alice an autocrypt email and she processes it.
-            aliceCrypt.processAutocryptHeader(vals, bob, new Date(), function (err) {
-              t.ifError(err)
-              t.end()
+            bobCrypt.recommendation(bob, alice, function (err, recommendation) {
+              t.same(recommendation, 'disable')
+              // bob sends alice an autocrypt email and she processes it.
+              aliceCrypt.processAutocryptHeader(vals, bob, new Date(), function (err) {
+                t.ifError(err)
+                t.end()
+              })
             })
           })
         })
@@ -40,30 +42,34 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
 
     test('generateHeader: generate a header from alice to bob', function (t) {
       // alice sends bob an email. should have bobs stuff from last time
-      aliceCrypt.generateHeader(alice, bob, function (err, val) {
+      aliceCrypt.generateHeader(alice, bob, function (err, header) {
         t.ifError(err)
-        var vals = Autocrypt.parse(val.header)
+        var vals = Autocrypt.parse(header)
         t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
         t.same(vals.addr, alice, 'public key is for alice')
         t.same(vals.type, '1', 'type is 1')
         t.same(vals['prefer-encrypt'], 'mutual')
-        t.same(val.recommendation, 'encrypt')
-        t.end()
+        aliceCrypt.recommendation(alice, bob, function (err, recommendation) {
+          t.same(recommendation, 'encrypt')
+          t.end()
+        })
       })
     })
 
     test('generateHeader: alice turns off autocrypt, recommendation is available', function (t) {
       // alice sends bob an email. should have bobs stuff from last time
       aliceCrypt.updateUser(alice, {'prefer-encrypt': 'nopreference'}, function (err) {
-        aliceCrypt.generateHeader(alice, bob, function (err, val) {
+        aliceCrypt.generateHeader(alice, bob, function (err, header) {
           t.ifError(err)
-          var vals = Autocrypt.parse(val.header)
+          var vals = Autocrypt.parse(header)
           t.same(vals.keydata, aliceKey.publicKey, 'alices public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'nopreference')
-          t.same(val.recommendation, 'available')
-          t.end()
+          aliceCrypt.recommendation(alice, bob, function (err, recommendation) {
+            t.same(recommendation, 'available')
+            t.end()
+          })
         })
       })
     })
@@ -79,14 +85,16 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.ok(record.last_seen_autocrypt < dateSent.getTime() / 1000, 'last_seen_autocrypt is before this one')
           t.same(record.state, 'reset', 'state is reset')
         })
-        aliceCrypt.generateHeader(alice, bob, function (err, val) {
-          var vals = Autocrypt.parse(val.header)
+        aliceCrypt.generateHeader(alice, bob, function (err, header) {
+          var vals = Autocrypt.parse(header)
           t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'nopreference')
-          t.same(val.recommendation, 'available')
-          t.end()
+          aliceCrypt.recommendation(bob, alice, function (err, recommendation) {
+            t.same(recommendation, 'available')
+            t.end()
+          })
         })
       })
     })
