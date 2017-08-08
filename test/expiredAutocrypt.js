@@ -8,8 +8,8 @@ var alice = 'alice1@example.com'
 setup(bob, (bobCrypt, bobKey, doneBob) => {
   setup(alice, (aliceCrypt, aliceKey, doneAlice) => {
     test('generateHeader: generate and process a header three months ago from bob to alice', function (t) {
-      bobCrypt.appendUser(bob, {public_key: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
-        aliceCrypt.appendUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
+      bobCrypt.addUser(bob, {public_key: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
+        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
           bobCrypt.generateHeader(bob, alice, function (err, val) {

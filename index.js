@@ -57,7 +57,7 @@ Autocrypt.recommendation = function (from, to) {
   return 'available'
 }
 
-Autocrypt.prototype.appendUser = function (fromEmail, data, cb) {
+Autocrypt.prototype.addUser = function (fromEmail, data, cb) {
   var self = this
   var defaults = {
     'prefer-encrypt': 'nopreference'
@@ -84,7 +84,7 @@ Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
 Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
-    if (err) return cb(err)
+    if (err && !err.notFound) return cb(err)
     self.storage.get(toEmail, function (err, to) {
       if (err && !err.notFound) return cb(err)
       return cb(null, {
