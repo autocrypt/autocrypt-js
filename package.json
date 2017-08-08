@@ -4,7 +4,8 @@
   "description": "Autocrypt node.js client",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js | tap-spec"
+    "test": "tape test/*.js | tap-spec",
+    "docs": "jsdoc index.js --configure .jsdoc.json"
   },
   "repository": {
     "type": "git",
