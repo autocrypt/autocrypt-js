@@ -8,6 +8,8 @@ module.exports = Autocrypt
 
 /**
  * A Node.js implementation of the Autocrypt specification.
+ * @class
+ * @name Autocrypt
  * @param {Object} opts Options object
  */
 function Autocrypt (opts) {
@@ -33,9 +35,11 @@ Autocrypt.stringify = function (headers) {
 }
 
 /**
- * Parse an autocrypt header
- * @param  {String} header An autocrypt header.
- * @return {Object}        Return all values as an object.
+ *  Turn an Autocrypt MIME string into an object. Opposite of `Autocrypt.stringify`.
+ * @example
+ * var data = Autocrypt.parse('type=1;addr=myemail@myuniversity.edu;prefer-encrypt=mutual;keydata=Li4u;')
+ * @param  {String}   header  An autocrypt header.
+ * @return {Object}           Return values as an object.
  */
 Autocrypt.parse = function (header) {
   var parts = header.split(';')

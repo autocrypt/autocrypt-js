@@ -13,7 +13,7 @@ npm install autocrypt
 ### ```var autocrypt = new Autocrypt(opts)```
 
 Options include:
-* `storage`: the storage to use for internal state. Must implement `get` and `put` methods. (example: `{get(fromEmail, cb), put(fromEmail, data, cb)}`)
+* `storage`: the storage to use for internal state. Must implement `get` and `put` methods. (`{get(fromEmail, cb), put(fromEmail, data, cb)}`)
 * `dir`: the directory for storing the internal state.
 
 ### ```autocrypt.processHeader(header, fromEmail, dateSent, cb)```

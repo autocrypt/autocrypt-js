@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/karissa/autocrypt-js#readme",
   "devDependencies": {
+    "minami": "^1.2.3",
     "openpgp": "^2.5.8",
     "rimraf": "^2.6.1",
     "tap-spec": "^4.1.1",
