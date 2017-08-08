@@ -2,7 +2,7 @@
 
 A Node.js implementation of the Autocrypt specification.
 
-[![Travis](https://travis-ci.org/karissa/autocrypt-js.svg?branch=master)](https://travis-ci.org/karissa/autocrypt-js) | [![NPM version](https://img.shields.io/npm/v/autocrypt.svg)](https://npmjs.org/package/autocrypt)
+[![Travis](https://travis-ci.org/karissa/autocrypt-js.svg?branch=master)](https://travis-ci.org/karissa/autocrypt-js) [![NPM version](https://img.shields.io/npm/v/autocrypt.svg)](https://npmjs.org/package/autocrypt)
 
 ```
 npm install autocrypt
