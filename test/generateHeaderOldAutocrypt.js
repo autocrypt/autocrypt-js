@@ -2,8 +2,8 @@ var Autocrypt = require('..')
 var setup = require('./util').setup
 var test = require('tape')
 
-var bob = 'bob@example.com'
-var alice = 'alice@example.com'
+var bob = 'bob1@example.com'
+var alice = 'alice1@example.com'
 
 setup(bob, (bobCrypt, bobKey, doneBob) => {
   setup(alice, (aliceCrypt, aliceKey, doneAlice) => {
