@@ -6,3 +6,8 @@ node_js:
   
 sudo: false
 
+script:
+ - npm test
+
+after_success:
+ - npm i -g codecov && npm run coverage && codecov

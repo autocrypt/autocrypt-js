@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js | tap-spec",
-    "docs": "jsdoc index.js --configure .jsdoc.json"
+    "docs": "jsdoc index.js --configure .jsdoc.json",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "jsdoc": "^3.5.4",
     "minami": "^1.2.3",
+    "nyc": "^11.1.0",
     "openpgp": "^2.5.8",
     "rimraf": "^2.6.1",
     "tap-spec": "^4.1.1",
