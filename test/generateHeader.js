@@ -91,7 +91,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'nopreference')
-          aliceCrypt.recommendation(bob, alice, function (err, recommendation) {
+          aliceCrypt.recommendation(alice, bob, function (err, recommendation) {
             t.same(recommendation, 'available')
             t.end()
           })
