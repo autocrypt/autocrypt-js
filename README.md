@@ -2,7 +2,8 @@
 
 A Node.js implementation of the Autocrypt specification.
 
-[![Travis](https://travis-ci.org/karissa/autocrypt-js.svg?branch=master)](https://travis-ci.org/karissa/autocrypt-js) [![NPM version](https://img.shields.io/npm/v/autocrypt.svg)](https://npmjs.org/package/autocrypt)
+[![npm][0]][1] [![Travis][2]][3] [![Test coverage][4]][5]
+
 
 ```
 npm install autocrypt
@@ -72,3 +73,14 @@ Turn an Autocrypt MIME string into an object. Opposite of `Autocrypt.stringify`.
 ```js
 var data = Autocrypt.parse('type=1;addr=myemail@myuniversity.edu;prefer-encrypt=mutual;keydata=Li4u;')
 ```
+
+## License
+
+MIT
+
+[0]: https://img.shields.io/npm/v/autocrypt.svg?style=flat-square
+[1]: https://npmjs.org/package/autocrypt
+[2]: https://img.shields.io/travis/karissa/autocrypt-js/master.svg?style=flat-square
+[3]: https://travis-ci.org/karissa/autocrypt-js
+[4]: https://img.shields.io/codecov/c/github/karissa/autocrypt-js/master.svg?style=flat-square
+[5]: https://codecov.io/github/karissa/autocrypt-js
