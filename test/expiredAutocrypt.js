@@ -7,25 +7,25 @@ var alice = 'alice1@example.com'
 
 setup(bob, (bobCrypt, bobKey, doneBob) => {
   setup(alice, (aliceCrypt, aliceKey, doneAlice) => {
-    test('generateHeader: generate and process a header three months ago from bob to alice', function (t) {
-      bobCrypt.addUser(bob, {public_key: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
-        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
+    test('expiredAutocrypt: generate and process a header three months ago from bob to alice', function (t) {
+      bobCrypt.addUser(bob, {public_key: bobKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
+        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
           bobCrypt.generateHeader(bob, alice, function (err, header) {
             t.ifError(err)
             var vals = Autocrypt.parse(header)
-            t.same(vals.keydata, bobKey.publicKey, 'bobs public key is in the header')
+            t.same(vals.keydata, bobKey.publicKeyArmored, 'bobs public key is in the header')
             t.same(vals.addr, bob, 'public key is for bob')
             t.same(vals.type, '1', 'type is 1')
             t.same(vals['prefer-encrypt'], 'mutual')
             bobCrypt.recommendation(bob, alice, function (err, recommendation) {
-              t.same(recommendation, 'disable')
+              t.same(recommendation, 'disable', 'recommendation is disable')
               // bob sends alice an autocrypt email and she processes it.
               var dateSent = new Date()
               dateSent.setMonth(dateSent.getMonth() - 3)
               aliceCrypt.processAutocryptHeader(vals, bob, dateSent, function (err) {
-                t.ifError(err)
+                t.ifError(err, 'no error processing')
                 t.end()
               })
             })
@@ -34,7 +34,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
       })
     })
 
-    test('generateHeader: alice receives new email from bob without autocrypt, recommendation is discourage', function (t) {
+    test('expiredAutocrypt: alice receives new email from bob without autocrypt, recommendation is discourage', function (t) {
       // bob sends alice an email with no autocrypt header
       var dateSent = new Date()
       aliceCrypt.processAutocryptHeader(null, bob, dateSent, function (err, val) {
@@ -47,7 +47,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
         })
         aliceCrypt.generateHeader(alice, bob, function (err, header) {
           var vals = Autocrypt.parse(header)
-          t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
+          t.same(vals.keydata, aliceKey.publicKeyArmored, 'bobs public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'mutual')
@@ -60,7 +60,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
     })
 
 
-    test('generateHeader: cleanup', function (t) {
+    test('expiredAutocrypt: cleanup', function (t) {
       doneBob(() => doneAlice(() => t.end()))
     })
   })

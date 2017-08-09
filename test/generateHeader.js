@@ -16,14 +16,14 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
     })
 
     test('generateHeader: generate and process a header from bob to alice', function (t) {
-      bobCrypt.addUser(bob, {public_key: bobKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
-        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKey, 'prefer-encrypt': 'mutual'}, function (err) {
+      bobCrypt.addUser(bob, {public_key: bobKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
+        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
           bobCrypt.generateHeader(bob, alice, function (err, header) {
             t.ifError(err)
             var vals = Autocrypt.parse(header)
-            t.same(vals.keydata, bobKey.publicKey, 'bobs public key is in the header')
+            t.same(vals.keydata, bobKey.publicKeyArmored, 'bobs public key is in the header')
             t.same(vals.addr, bob, 'public key is for bob')
             t.same(vals.type, '1', 'type is 1')
             t.same(vals['prefer-encrypt'], 'mutual')
@@ -45,7 +45,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
       aliceCrypt.generateHeader(alice, bob, function (err, header) {
         t.ifError(err)
         var vals = Autocrypt.parse(header)
-        t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
+        t.same(vals.keydata, aliceKey.publicKeyArmored, 'bobs public key is in the header')
         t.same(vals.addr, alice, 'public key is for alice')
         t.same(vals.type, '1', 'type is 1')
         t.same(vals['prefer-encrypt'], 'mutual')
@@ -62,7 +62,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
         aliceCrypt.generateHeader(alice, bob, function (err, header) {
           t.ifError(err)
           var vals = Autocrypt.parse(header)
-          t.same(vals.keydata, aliceKey.publicKey, 'alices public key is in the header')
+          t.same(vals.keydata, aliceKey.publicKeyArmored, 'alices public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'nopreference')
@@ -87,7 +87,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
         })
         aliceCrypt.generateHeader(alice, bob, function (err, header) {
           var vals = Autocrypt.parse(header)
-          t.same(vals.keydata, aliceKey.publicKey, 'bobs public key is in the header')
+          t.same(vals.keydata, aliceKey.publicKeyArmored, 'bobs public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
           t.same(vals['prefer-encrypt'], 'nopreference')

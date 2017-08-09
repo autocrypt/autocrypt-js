@@ -67,7 +67,7 @@ Autocrypt.prototype.recommendation = function (fromEmail, toEmail, cb) {
     self.storage.get(toEmail, function (err, to) {
       if (err && !err.notFound) return cb(err)
       var ret = 'available'
-      if (!to || to.keydata) ret = 'disable'
+      if (!to || !to.keydata) ret = 'disable'
       else if (to.state === 'mutual' && from['prefer-encrypt'] === 'mutual') ret = 'encrypt'
       else if (to.state === 'gossip') ret = 'discourage'
       else {
@@ -126,7 +126,7 @@ Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
         Autocrypt.stringify({
           addr: fromEmail,
           type: '1',
-          keydata: from.keydata,
+          keydata: from.public_key,
           'prefer-encrypt': from['prefer-encrypt']
         })
       )
@@ -184,9 +184,12 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
 
     var error
     if (!header) error = new Error('Invalid Autocrypt Header: no valid header found')
+    else if (!header.keydata) error =  new Error('Invalid Autocrypt Header: keydata is required.')
+    else if (!header.addr) error =  new Error('Invalid Autocrypt Header: addr is required.')
+    else if (!header.type) error =  new Error('Invalid Autocrypt Header: type is required.')
+    else if (!header['prefer-encrypt']) error =  new Error('Invalid Autocrypt Header: prefer-encrypt is required.')
     else if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    else if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    else if (header.type !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
+    else if (header.type.toString() !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
     if (error) {
       debug('got an error', error)
       return self.storage.put(fromEmail, xtend(record, {last_seen: timestamp, state: 'reset'}), _done)
