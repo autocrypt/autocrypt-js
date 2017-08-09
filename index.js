@@ -30,7 +30,7 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (headers.keydata) ret += `keydata=${new Buffer(headers.keydata).toString('base64')};`
+  if (headers.keydata) ret += `keydata=${Buffer.from(headers.keydata).toString('base64')};`
   return ret
 }
 
@@ -178,21 +178,27 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
   if (header && typeof header === 'string') header = Autocrypt.parse(header)
   debug('header is', header)
   self.storage.get(fromEmail, function (err, record) {
-    if (err && !err.notFound) return _done(err)
-    if (record && (dateSent < record.last_seen_autocrypt)) return _done()
+    if (err && !err.notFound) return cb(err)
+    if (record && (dateSent < record.last_seen_autocrypt)) return cb()
     debug('got record for:', fromEmail, record)
 
-    var error
-    if (!header) error = new Error('Invalid Autocrypt Header: no valid header found')
-    else if (!header.keydata) error =  new Error('Invalid Autocrypt Header: keydata is required.')
-    else if (!header.addr) error =  new Error('Invalid Autocrypt Header: addr is required.')
-    else if (!header.type) error =  new Error('Invalid Autocrypt Header: type is required.')
-    else if (!header['prefer-encrypt']) error =  new Error('Invalid Autocrypt Header: prefer-encrypt is required.')
-    else if (header.addr !== fromEmail) error = new Error('Invalid Autocrypt Header: addr not the same as from email.')
-    else if (header.type.toString() !== '1') error = new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
-    if (error) {
+    if (!header) return _onerror(new Error('Invalid Autocrypt Header: no valid header found'))
+    var CRITICAL = ['keydata', 'addr', 'type', 'prefer-encrypt']
+    for (var i in CRITICAL) {
+      var c = CRITICAL[i]
+      var msg = `Invalid Autocrypt Header: ${c} is required.`
+      if (!header[c]) return _onerror(new Error(msg))
+    }
+    if (header.addr !== fromEmail) return _onerror(new Error('Invalid Autocrypt Header: addr not the same as from email.'))
+    if (header.type && header.type.toString() !== '1') return _onerror(new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`))
+
+    function _onerror (error) {
       debug('got an error', error)
-      return self.storage.put(fromEmail, xtend(record, {last_seen: timestamp, state: 'reset'}), _done)
+      var data = xtend(record, {last_seen: timestamp, state: 'reset'})
+      return self.storage.put(fromEmail, data, function (err) {
+        if (err) return cb(err)
+        return cb(error)
+      })
     }
 
     var updatedRecord = {
@@ -207,12 +213,7 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
 
     debug('updating record:', fromEmail, updatedRecord)
     // when valid
-    self.storage.put(fromEmail, updatedRecord, _done)
-
-    function _done (err) {
-      if (err) return cb(err)
-      return cb(error)
-    }
+    self.storage.put(fromEmail, updatedRecord, cb)
   })
 }
 

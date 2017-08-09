@@ -1,4 +1,3 @@
-var Autocrypt = require('..')
 var setup = require('./util').setup
 var test = require('tape')
 
@@ -7,7 +6,7 @@ var fromAddr = 'pam@example.com'
 test('missingHeader: type not present', function (t) {
   var header = {
     'prefer-encrypt': 'mutual',
-    'addr': fromAddr
+    addr: fromAddr
   }
   testMissing(t, header, 'Invalid Autocrypt Header: type is required.')
 })
@@ -15,7 +14,7 @@ test('missingHeader: type not present', function (t) {
 test('missingHeader: keydata not present', function (t) {
   var header = {
     'prefer-encrypt': 'mutual',
-    'addr': fromAddr,
+    addr: fromAddr,
     type: '1'
   }
   var errorMsg = 'Invalid Autocrypt Header: keydata is required.'
@@ -35,7 +34,7 @@ test('missingHeader: keydata not present', function (t) {
 
 test('missingHeader: prefer-encrypt not present', function (t) {
   var header = {
-    'addr': fromAddr,
+    addr: fromAddr,
     type: '1'
   }
   testMissing(t, header, 'Invalid Autocrypt Header: prefer-encrypt is required.')

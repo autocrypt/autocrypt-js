@@ -18,10 +18,10 @@ test('processEmail: process incoming email header', function (t) {
       })
     }
 
-    var mime = new MimeBuilder("text/plain").
-      setHeader(header).
-      setContent('Hello World!').
-      build()
+    var mime = new MimeBuilder('text/plain')
+      .setHeader(header)
+      .setContent('Hello World!')
+      .build()
 
     crypt.processEmail(mime, (err) => {
       t.ifError(err)
@@ -51,12 +51,12 @@ test('processEmail: only one autocrypt header allowed', function (t) {
       'date': new Date()
     }
 
-    var mime = new MimeBuilder("text/plain").
-      setHeader(headers).
-      addHeader('Autocrypt', autocryptHeader).
-      addHeader('Autocrypt', autocryptHeader).
-      setContent('Hello World!').
-      build()
+    var mime = new MimeBuilder('text/plain')
+      .setHeader(headers)
+      .addHeader('Autocrypt', autocryptHeader)
+      .addHeader('Autocrypt', autocryptHeader)
+      .setContent('Hello World!')
+      .build()
 
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')
@@ -83,10 +83,10 @@ test('processEmail: email not same as header.addr', function (t) {
       })
     }
 
-    var mime = new MimeBuilder("text/plain").
-      setHeader(headers).
-      setContent('Hello World!').
-      build()
+    var mime = new MimeBuilder('text/plain')
+      .setHeader(headers)
+      .setContent('Hello World!')
+      .build()
 
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')
@@ -101,7 +101,6 @@ test('processEmail: email not same as header.addr', function (t) {
   })
 })
 
-
 test('processEmail: header.addr not same as email', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var headers = {
@@ -115,10 +114,10 @@ test('processEmail: header.addr not same as email', function (t) {
       })
     }
 
-    var mime = new MimeBuilder("text/plain").
-      setHeader(headers).
-      setContent('Hello World!').
-      build()
+    var mime = new MimeBuilder('text/plain')
+      .setHeader(headers)
+      .setContent('Hello World!')
+      .build()
 
     crypt.processEmail(mime, (err) => {
       t.ok(err, 'there should be an error')

@@ -1,4 +1,3 @@
-var Autocrypt = require('..')
 var setup = require('./util').setup
 var test = require('tape')
 
