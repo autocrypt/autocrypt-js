@@ -29,7 +29,7 @@ Parse the email yourself and pass in the autocrypt header, from email, and date 
 
 Take the full email string (including headers) and parse it using a built-in email parser.
 
-### ```autocrypt.generateHeader(fromEmail, toEmail, cb)```
+### ```autocrypt.generateAutocryptHeader(fromEmail, toEmail, cb)```
 
 Generate a string Autocrypt header given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
 

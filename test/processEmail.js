@@ -41,7 +41,7 @@ test('processEmail: process incoming email header', function (t) {
 test('processEmail: only one autocrypt header allowed', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var autocryptHeader = Autocrypt.stringify({
-      keydata: key.publicKeyArmored,
+      keydata: Autocrypt.encodeKeydata(key.publicKeyArmored),
       type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr

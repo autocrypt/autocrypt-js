@@ -1,3 +1,5 @@
+var openpgp = require('openpgp')
+var base64 = require('base64-js')
 var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
 var Mailparser = require('emailjs-mime-parser')
@@ -108,6 +110,10 @@ Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
   })
 }
 
+Autocrypt.encodeKeydata = function (publicKey) {
+  return base64.fromByteArray(openpgp.armor.decode(publicKey).data)
+}
+
 /**
  * Generate an autocrypt header for given from and to email addresses.
  * This header is meant to be sent from the first email to the second email
@@ -116,7 +122,7 @@ Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
  * @param  {String}   toEmail   The email address we are sending the header to.
  * @param  {Function} cb        [description]
  */
-Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
+Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, toEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
     if (err) return cb(err)
@@ -126,7 +132,7 @@ Autocrypt.prototype.generateHeader = function (fromEmail, toEmail, cb) {
         Autocrypt.stringify({
           addr: fromEmail,
           type: '1',
-          keydata: from.public_key,
+          keydata: Autocrypt.encodeKeydata(from.public_key),
           'prefer-encrypt': from['prefer-encrypt']
         })
       )
@@ -164,6 +170,18 @@ Autocrypt.prototype.processEmail = function (email, cb) {
   parser.write(email)
 }
 
+Autocrypt.prototype.validateHeaderValues = function (fromEmail, header) {
+  if (!header) return new Error('Invalid Autocrypt Header: no valid header found')
+  var CRITICAL = ['keydata', 'addr', 'type', 'prefer-encrypt']
+  for (var i in CRITICAL) {
+    var c = CRITICAL[i]
+    var msg = `Invalid Autocrypt Header: ${c} is required.`
+    if (!header[c]) return new Error(msg)
+  }
+  if (header.addr !== fromEmail) return new Error('Invalid Autocrypt Header: addr not the same as from email.')
+  if (header.type && header.type.toString() !== '1') return new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
+}
+
 /**
  * Process an incoming Autocrypt header and add it to the internal log.
  * @param  {Object}   header     The parsed 'Autocrypt' email header.
@@ -182,21 +200,14 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
     if (record && (dateSent < record.last_seen_autocrypt)) return cb()
     debug('got record for:', fromEmail, record)
 
-    if (!header) return _onerror(new Error('Invalid Autocrypt Header: no valid header found'))
-    var CRITICAL = ['keydata', 'addr', 'type', 'prefer-encrypt']
-    for (var i in CRITICAL) {
-      var c = CRITICAL[i]
-      var msg = `Invalid Autocrypt Header: ${c} is required.`
-      if (!header[c]) return _onerror(new Error(msg))
-    }
-    if (header.addr !== fromEmail) return _onerror(new Error('Invalid Autocrypt Header: addr not the same as from email.'))
-    if (header.type && header.type.toString() !== '1') return _onerror(new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`))
+    var error = self.validateHeaderValues(fromEmail, header)
+    if (error) return _onerror(error)
 
     function _onerror (error) {
       debug('got an error', error)
       var data = xtend(record, {last_seen: timestamp, state: 'reset'})
       return self.storage.put(fromEmail, data, function (err) {
-        if (err) return cb(err)
+        if (err) error = err
         return cb(error)
       })
     }
