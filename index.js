@@ -126,12 +126,12 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
     if (err) return cb(err)
-    Autocrypt.stringify({
+    cb(null, Autocrypt.stringify({
       addr: fromEmail,
       type: '1',
       keydata: Autocrypt.encodeKeydata(from.public_key),
       'prefer-encrypt': from['prefer-encrypt']
-    })
+    }))
   })
 }
 
