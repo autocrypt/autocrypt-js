@@ -122,20 +122,15 @@ Autocrypt.encodeKeydata = function (publicKey) {
  * @param  {String}   toEmail   The email address we are sending the header to.
  * @param  {Function} cb        [description]
  */
-Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, toEmail, cb) {
+Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
     if (err) return cb(err)
-    self.storage.get(toEmail, function (err, to) {
-      if (err && !err.notFound) return cb(err)
-      return cb(null,
-        Autocrypt.stringify({
-          addr: fromEmail,
-          type: '1',
-          keydata: Autocrypt.encodeKeydata(from.public_key),
-          'prefer-encrypt': from['prefer-encrypt']
-        })
-      )
+    Autocrypt.stringify({
+      addr: fromEmail,
+      type: '1',
+      keydata: Autocrypt.encodeKeydata(from.public_key),
+      'prefer-encrypt': from['prefer-encrypt']
     })
   })
 }

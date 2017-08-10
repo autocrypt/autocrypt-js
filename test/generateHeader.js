@@ -8,7 +8,7 @@ var alice = 'alice@example.com'
 setup(bob, (bobCrypt, bobKey, doneBob) => {
   setup(alice, (aliceCrypt, aliceKey, doneAlice) => {
     test('generateAutocryptHeader: generate and process a header from bob to alice', function (t) {
-      bobCrypt.generateAutocryptHeader(bob, alice, function (err) {
+      bobCrypt.generateAutocryptHeader(bob, function (err) {
         t.ok(err)
         t.end()
       })
@@ -20,7 +20,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
         aliceCrypt.addUser(alice, {public_key: aliceKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
-          bobCrypt.generateAutocryptHeader(bob, alice, function (err, header) {
+          bobCrypt.generateAutocryptHeader(bob, function (err, header) {
             t.ifError(err)
             var vals = Autocrypt.parse(header)
             t.same(vals.keydata, Autocrypt.encodeKeydata(bobKey.publicKeyArmored), 'bobs public key is in the header')
@@ -43,7 +43,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
 
     test('generateAutocryptHeader: generate a header from alice to bob', function (t) {
       // alice sends bob an email. should have bobs stuff from last time
-      aliceCrypt.generateAutocryptHeader(alice, bob, function (err, header) {
+      aliceCrypt.generateAutocryptHeader(alice, function (err, header) {
         t.ifError(err)
         var vals = Autocrypt.parse(header)
         t.same(vals.keydata, Autocrypt.encodeKeydata(aliceKey.publicKeyArmored), 'bobs public key is in the header')
@@ -62,7 +62,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
       // alice sends bob an email. should have bobs stuff from last time
       aliceCrypt.updateUser(alice, {'prefer-encrypt': 'nopreference'}, function (err) {
         t.ifError(err)
-        aliceCrypt.generateAutocryptHeader(alice, bob, function (err, header) {
+        aliceCrypt.generateAutocryptHeader(alice, function (err, header) {
           t.ifError(err)
           var vals = Autocrypt.parse(header)
           t.same(vals.keydata, Autocrypt.encodeKeydata(aliceKey.publicKeyArmored), 'alices public key is in the header')
@@ -89,7 +89,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.ok(record.last_seen_autocrypt < dateSent.getTime() / 1000, 'last_seen_autocrypt is before this one')
           t.same(record.state, 'reset', 'state is reset')
         })
-        aliceCrypt.generateAutocryptHeader(alice, bob, function (err, header) {
+        aliceCrypt.generateAutocryptHeader(alice, function (err, header) {
           t.ifError(err)
           var vals = Autocrypt.parse(header)
           t.same(vals.keydata, Autocrypt.encodeKeydata(aliceKey.publicKeyArmored), 'bobs public key is in the header')
