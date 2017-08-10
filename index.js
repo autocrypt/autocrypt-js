@@ -119,7 +119,6 @@ Autocrypt.encodeKeydata = function (publicKey) {
  * This header is meant to be sent from the first email to the second email
  * as the full string after the `Autocrypt:` key in the email header.
  * @param  {String}   fromEmail The email address we are sending the header from.
- * @param  {String}   toEmail   The email address we are sending the header to.
  * @param  {Function} cb        [description]
  */
 Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
