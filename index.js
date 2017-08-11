@@ -42,7 +42,9 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (headers.keydata) ret += `keydata=${Buffer.from(headers.keydata).toString('base64')};`
+  if (headers.public_key) ret += `keydata=${Autocrypt.encodeKeydata(headers.public_key)};`
+  else if (headers.keydata) ret += `keydata=${headers.keydata};`
+  else throw new Error('Either an ASCI-armored OpenPGP public_key or base64-encoded Autocrypt keydata field required.')
   return ret
 }
 
