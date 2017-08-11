@@ -21,6 +21,16 @@ function Autocrypt (opts) {
 }
 
 /**
+ * Turn an armored OpenPGP public key into the proper `keydata` header for sending
+ * in an Autocrypt header.
+ * @param  {String} publicKey An ASCII-armored OpenPGP public key.
+ * @return {String}           A Base64-encoded OpenPGP public key.
+ */
+Autocrypt.encodeKeydata = function (publicKey) {
+  return base64.fromByteArray(openpgp.armor.decode(publicKey).data)
+}
+
+/**
  * Turn an object into a string representation of autocrypt headers.
  * @param  {Object} headers The headers to add.
  * @return {String}         A String representation of the headers to add to an email mime header.
@@ -121,10 +131,6 @@ Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
     if (err) return cb(err)
     self.storage.put(fromEmail, xtend(user, data), cb)
   })
-}
-
-Autocrypt.encodeKeydata = function (publicKey) {
-  return base64.fromByteArray(openpgp.armor.decode(publicKey).data)
 }
 
 /**
