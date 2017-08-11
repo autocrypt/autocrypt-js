@@ -49,6 +49,10 @@ Add a user to autocrypt. This should be done for all new accounts.
 
 Update a user in autocrypt. Options are the same as `addUser`.
 
+### ```autocrypt.getUser(fromEmail, cb)```
+
+Get a user who has been added to autocrypt. Returns an error in the callback if no user has been added with that email.
+
 
 ## Static Methods
 
