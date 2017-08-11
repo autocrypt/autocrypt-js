@@ -37,12 +37,11 @@ Generate a string Autocrypt header given the email. `fromEmail` must reference a
 
 Generate an autocrypt UI recommendation given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
 
-### ```autocrypt.addUser(fromEmail, opts, cb)```
+### ```autocrypt.addUser(fromEmail, publicKeyArmored, opts, cb)```
 
-Add a user to autocrypt. This should be done for all new accounts.
+Add a user to autocrypt. This should be done for all new accounts. `publicKeyArmored` should be an armored version of the public key.
 
 * `opts`:
-  * `public_key`: Required. The raw public key data for the given user. (`---- BEGIN ...`)
   * `prefer-encrypt`: `mutual` or `nopreference`. Defaults to `nopreference`.
 
 ### ```autocrypt.updateUser(fromEmail, opts, cb)```
@@ -56,19 +55,29 @@ Get a user who has been added to autocrypt. Returns an error in the callback if 
 
 ## Static Methods
 
-
 ### ```Autocrypt.stringify(header)```
 
 Turn an object into an Autocrypt MIME string for use in an email header.
 
 ```js
 var header = Autocrypt.stringify({
-  keydata: '...',
-  type: '1',
+  public_key: '---- BEGIN ...',
   addr: 'myemail@myuniversity.edu',
   'prefer-encrypt': 'mutual'
 })
 ```
+
+You can also pass the Autocrypt base-64 encoded `keydata` directly.
+
+```js
+var header = Autocrypt.stringify({
+  keydata: 'pYEWY0RSAEER1+gQRtZECyyww67....',
+  addr: 'myemail@myuniversity.edu',
+  'prefer-encrypt': 'mutual'
+})
+```
+
+A value of `type=1` is automatically added to the header if not supplied, since at this time Autocrypt only supports `type=1`.
 
 ### ```Autocrypt.parse(header)```
 

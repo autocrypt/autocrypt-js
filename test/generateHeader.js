@@ -15,9 +15,9 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
     })
 
     test('generateAutocryptHeader: generate and process a header from bob to alice', function (t) {
-      bobCrypt.addUser(bob, {public_key: bobKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
+      bobCrypt.addUser(bob, bobKey.publicKeyArmored, {'prefer-encrypt': 'mutual'}, function (err) {
         t.ifError(err)
-        aliceCrypt.addUser(alice, {public_key: aliceKey.publicKeyArmored, 'prefer-encrypt': 'mutual'}, function (err) {
+        aliceCrypt.addUser(alice, aliceKey.publicKeyArmored, {'prefer-encrypt': 'mutual'}, function (err) {
           t.ifError(err)
           // bob sends alice an email
           bobCrypt.generateAutocryptHeader(bob, function (err, header) {

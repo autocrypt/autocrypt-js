@@ -11,7 +11,7 @@ test('processEmail: process incoming email header', function (t) {
       'from': fromAddr,
       'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
-        keydata: key.publicKeyArmored,
+        public_key: key.publicKeyArmored,
         type: '1',
         'prefer-encrypt': 'mutual',
         'addr': fromAddr
@@ -31,7 +31,7 @@ test('processEmail: process incoming email header', function (t) {
         t.same(record.state, 'mutual')
         t.same(record.addr, fromAddr)
         t.same(record.type, '1')
-        t.same(record.keydata, key.publicKeyArmored)
+        t.same(record.keydata, Autocrypt.encodeKeydata(key.publicKeyArmored))
         done(() => t.end())
       })
     })
@@ -41,7 +41,7 @@ test('processEmail: process incoming email header', function (t) {
 test('processEmail: only one autocrypt header allowed', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var autocryptHeader = Autocrypt.stringify({
-      keydata: Autocrypt.encodeKeydata(key.publicKeyArmored),
+      public_key: key.publicKeyArmored,
       type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
@@ -76,7 +76,7 @@ test('processEmail: email not same as header.addr', function (t) {
       'from': 'notthesame@gmail.com',
       'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
-        keydata: key.publicKeyArmored,
+        public_key: key.publicKeyArmored,
         type: '1',
         'prefer-encrypt': 'mutual',
         'addr': fromAddr
@@ -107,7 +107,7 @@ test('processEmail: header.addr not same as email', function (t) {
       'from': fromAddr,
       'date': new Date(),
       'Autocrypt': Autocrypt.stringify({
-        keydata: key.publicKeyArmored,
+        public_key: key.publicKeyArmored,
         type: '1',
         'prefer-encrypt': 'mutual',
         'addr': 'notthesame@gmail.com'
