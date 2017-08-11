@@ -83,23 +83,36 @@ Autocrypt.prototype.recommendation = function (fromEmail, toEmail, cb) {
 }
 
 /**
- * Add a user to the autocrypt.
+ * Get a user from autocrypt.
  * @param {String}   fromEmail The email address.
- * @param {Object}   data      The data for the email address. `public_key` required.
- * @param {Function} cb        Will return an error or nothing if successful.
+ * @param {Function} cb        Will return an error or the user.
  */
-Autocrypt.prototype.addUser = function (fromEmail, data, cb) {
+Autocrypt.prototype.getUser = function (fromEmail, cb) {
+  this.storage.get(fromEmail, cb)
+}
+
+/**
+ * Add a user to autocrypt.
+ * @param {String}   fromEmail The email address.
+ * @param {String}   publicKey The public key associated with the email.
+ * @param {Object}   opts      Options for the email address.
+ * @param {Function} cb        Returns an error if there is a failure.
+ */
+Autocrypt.prototype.addUser = function (fromEmail, publicKey, opts, cb) {
   var self = this
+  if (!cb && (typeof opts === 'function')) return self.addUser(fromEmail, publicKey, null, opts)
+  if (!publicKey || (typeof publicKey !== 'string')) return cb(new Error('publicKey required.'))
   var defaults = {
+    public_key: publicKey,
     'prefer-encrypt': 'nopreference'
   }
-  self.storage.put(fromEmail, xtend(defaults, data), cb)
+  self.storage.put(fromEmail, xtend(defaults, opts), cb)
 }
 
 /**
  * Update an autocrypt user.
  * @param  {String}   fromEmail The email address.
- * @param  {Object}   data      The data for the email address.
+ * @param  {Object}   data      The data for the email address to be updated.
  * @param  {Function} cb        Will return an error or nothing if successful.
  */
 Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
