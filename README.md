@@ -93,7 +93,7 @@ MIT
 
 [0]: https://img.shields.io/npm/v/autocrypt.svg?style=flat-square
 [1]: https://npmjs.org/package/autocrypt
-[2]: https://img.shields.io/travis/karissa/autocrypt-js/master.svg?style=flat-square
+[2]: https://img.shields.io/travis/autocrypt/autocrypt-js/master.svg?style=flat-square
 [3]: https://travis-ci.org/karissa/autocrypt-js
-[4]: https://img.shields.io/codecov/c/github/karissa/autocrypt-js/master.svg?style=flat-square
-[5]: https://codecov.io/github/karissa/autocrypt-js
+[4]: https://img.shields.io/codecov/c/github/autocrypt/autocrypt-js/master.svg?style=flat-square
+[5]: https://codecov.io/github/autocrypt/autocrypt-js
