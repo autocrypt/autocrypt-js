@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/karissa/autocrypt-js.git"
+    "url": "git+ssh://git@github.com/autocrypt/autocrypt-js.git"
   },
   "keywords": [
     "autocrypt",
@@ -21,9 +21,9 @@
   "author": "Karissa McKelvey",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/karissa/autocrypt-js/issues"
+    "url": "https://github.com/autocrypt/autocrypt-js/issues"
   },
-  "homepage": "https://github.com/karissa/autocrypt-js#readme",
+  "homepage": "https://github.com/autocrypt/autocrypt-js#readme",
   "devDependencies": {
     "dependency-check": "^2.9.1",
     "jsdoc": "^3.5.4",
