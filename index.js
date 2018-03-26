@@ -1,4 +1,3 @@
-var openpgp = require('openpgp')
 var base64 = require('base64-js')
 var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
@@ -26,7 +25,7 @@ function Autocrypt (opts) {
  * @return {String}           A Base64-encoded OpenPGP public key.
  */
 Autocrypt.encodeKeydata = function (publicKey) {
-  return base64.fromByteArray(openpgp.armor.decode(publicKey).data)
+  return base64.fromByteArray(publicKey)
 }
 
 /**
