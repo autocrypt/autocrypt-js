@@ -26,14 +26,14 @@
   "homepage": "https://github.com/autocrypt/autocrypt-js#readme",
   "devDependencies": {
     "dependency-check": "^2.9.1",
+    "emailjs-mime-builder": "^1.0.1",
     "jsdoc": "^3.5.4",
     "minami": "^1.2.3",
     "nyc": "^11.1.0",
-    "openpgp": "^2.5.8",
+    "openpgp": "^2.6.2",
     "rimraf": "^2.6.1",
     "standard": "^10.0.3",
     "tap-spec": "^4.1.1",
-    "emailjs-mime-builder": "^1.0.1",
     "tape": "^4.8.0"
   },
   "dependencies": {
