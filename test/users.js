@@ -28,7 +28,7 @@ test('users: add and get a user with a public key has defaults', function (t) {
       crypt.getUser(email, (err, user) => {
         t.ifError(err)
         t.same(user.public_key, key, 'has public_key')
-        t.same(user['prefer-encrypt'], 'nopreference', 'nopreference is default')
+        t.same(user['prefer-encrypt'], undefined, 'nopreference is default')
         done(() => t.end())
       })
     })

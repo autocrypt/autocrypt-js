@@ -102,8 +102,7 @@ Autocrypt.prototype.addUser = function (fromEmail, publicKey, opts, cb) {
   if (!cb && (typeof opts === 'function')) return self.addUser(fromEmail, publicKey, null, opts)
   if (!publicKey || (typeof publicKey !== 'string')) return cb(new Error('publicKey required.'))
   var defaults = {
-    public_key: publicKey,
-    'prefer-encrypt': 'nopreference'
+    public_key: publicKey
   }
   self.storage.put(fromEmail, xtend(defaults, opts), cb)
 }
@@ -133,12 +132,15 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
   var self = this
   self.storage.get(fromEmail, function (err, from) {
     if (err) return cb(err)
-    cb(null, Autocrypt.stringify({
+    var opts = {
       addr: fromEmail,
       type: '1',
-      keydata: from.public_key,
-      'prefer-encrypt': from['prefer-encrypt']
-    }))
+      keydata: from.public_key
+    }
+    if (from['prefer-encrypt'] === 'mutual') {
+      opts['prefer-encrypt'] = 'mutual'
+    }
+    cb(null, Autocrypt.stringify(opts))
   })
 }
 
