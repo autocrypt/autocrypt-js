@@ -3,8 +3,6 @@ var base64 = require('base64-js')
 var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
 var Mailparser = require('emailjs-mime-parser')
-var path = require('path')
-var level = require('level')
 
 module.exports = Autocrypt
 
@@ -17,7 +15,8 @@ module.exports = Autocrypt
 function Autocrypt (opts) {
   if (!(this instanceof Autocrypt)) return new Autocrypt(opts)
   if (!opts) opts = {}
-  this.storage = opts.storage || defaultStorage(opts.dir)
+  if (!opts.storage) throw new Error('opts.storage required')
+  this.storage = opts.storage
 }
 
 /**
@@ -241,8 +240,4 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
     // when valid
     self.storage.put(fromEmail, updatedRecord, cb)
   })
-}
-
-function defaultStorage (dir) {
-  return level(dir || path.join(__dirname, 'autocrypt-data'), {valueEncoding: 'json'})
 }

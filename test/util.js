@@ -1,13 +1,10 @@
-var path = require('path')
 var openpgp = require('openpgp')
 var autocrypt = require('..')
-var rimraf = require('rimraf')
+var memdb = require('memdb')
 
 module.exports = {
   setup: function (fromAddr, cb) {
-    var dir = path.join(__dirname, fromAddr + '-autocrypt-test.db')
-    rimraf.sync(dir)
-    var crypt = autocrypt({dir: dir})
+    var crypt = autocrypt({storage: memdb({valueEncoding: 'json'})})
     openpgp.initWorker({ path: 'openpgp.worker.js' }) // set the relative web worker path
     openpgp.config.aead_protect = true // activate fast AES-GCM mode (not yet OpenPGP standard)
 
@@ -20,9 +17,7 @@ module.exports = {
     ).catch((err) => { throw err })
 
     function done (cb) {
-      crypt.storage.close(() => {
-        rimraf(dir, cb)
-      })
+      crypt.storage.close(cb)
     }
   }
 }
