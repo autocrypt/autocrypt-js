@@ -68,7 +68,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.same(vals.keydata, aliceKey, 'alices public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
-          t.same(vals['prefer-encrypt'], 'nopreference')
+          t.same(vals['prefer-encrypt'], undefined)
           aliceCrypt.recommendation(alice, bob, function (err, recommendation) {
             t.ifError(err)
             t.same(recommendation, 'available')
@@ -95,7 +95,7 @@ setup(bob, (bobCrypt, bobKey, doneBob) => {
           t.same(vals.keydata, aliceKey, 'bobs public key is in the header')
           t.same(vals.addr, alice, 'email is for alice')
           t.same(vals.type, '1', 'type is 1')
-          t.same(vals['prefer-encrypt'], 'nopreference')
+          t.same(vals['prefer-encrypt'], undefined)
           aliceCrypt.recommendation(alice, bob, function (err, recommendation) {
             t.ifError(err)
             t.same(recommendation, 'available')
