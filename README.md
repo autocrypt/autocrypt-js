@@ -37,9 +37,9 @@ Generate a string Autocrypt header given the email. `fromEmail` must reference a
 
 Generate an autocrypt UI recommendation given the from email and to email. `fromEmail` must reference a user that has been added with the `addUser` method.
 
-### ```autocrypt.addUser(fromEmail, publicKeyArmored, opts, cb)```
+### ```autocrypt.addUser(fromEmail, key, opts, cb)```
 
-Add a user to autocrypt. This should be done for all new accounts. `publicKeyArmored` should be an armored version of the public key.
+Add a user to autocrypt. This should be done for all new accounts. `key` should be base64 encoding
 
 * `opts`:
   * `prefer-encrypt`: `mutual` or `nopreference`. Defaults to `nopreference`.

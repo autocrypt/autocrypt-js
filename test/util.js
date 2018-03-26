@@ -1,4 +1,5 @@
 var openpgp = require('openpgp')
+var base64 = require('base64-js')
 var autocrypt = require('..')
 var memdb = require('memdb')
 
@@ -13,11 +14,16 @@ module.exports = {
       numBits: 1096,
       passphrase: 'super long and hard to guess'
     }
-    ).then((key) => cb(crypt, key, done)
-    ).catch((err) => { throw err })
+    ).then((key) => cb(crypt, decode(key.publicKeyArmored), done)
+  ).catch((err) => { throw err })
 
     function done (cb) {
       crypt.storage.close(cb)
     }
-  }
+  },
+  decode: decode
+}
+
+function decode (key) {
+  return base64.fromByteArray(openpgp.armor.decode(key).data)
 }

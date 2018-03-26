@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/autocrypt/autocrypt-js#readme",
   "devDependencies": {
+    "base64-js": "^1.2.3",
     "dependency-check": "^2.9.1",
     "emailjs-mime-builder": "^1.0.1",
     "jsdoc": "^3.5.4",
@@ -38,7 +39,6 @@
     "tape": "^4.8.0"
   },
   "dependencies": {
-    "base64-js": "^1.2.1",
     "debug": "^2.6.8",
     "emailjs-mime-parser": "^1.0.0",
     "xtend": "^4.0.1"

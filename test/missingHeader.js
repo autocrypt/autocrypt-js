@@ -50,7 +50,7 @@ test('missingHeader: addr not present', function (t) {
 
 function testMissing (t, header, errorMsg) {
   setup(fromAddr, (crypt, key, done) => {
-    header.keydata = key.publicKeyArmored
+    header.keydata = key
     crypt.processAutocryptHeader(header, fromAddr, new Date(), (err) => {
       t.ok(err, 'there should be an error')
       t.same(err && err.message, errorMsg)

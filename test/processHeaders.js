@@ -1,4 +1,3 @@
-var Autocrypt = require('..')
 var setup = require('./util').setup
 var test = require('tape')
 
@@ -8,7 +7,7 @@ test('processAutocryptHeader: is parsed and user added', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     // Incoming valid email header. Process it and add it to the log.
     var header = {
-      keydata: Autocrypt.encodeKeydata(key.publicKeyArmored),
+      keydata: key,
       type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
@@ -17,7 +16,7 @@ test('processAutocryptHeader: is parsed and user added', function (t) {
       t.ifError(err, 'no error')
       crypt.storage.get(fromAddr, (err, record) => {
         t.ifError(err)
-        t.same(record.keydata, Autocrypt.encodeKeydata(key.publicKeyArmored), 'public key for incoming mail is stored correctly')
+        t.same(record.keydata, key, 'public key for incoming mail is stored correctly')
         done(() => t.end())
       })
     })
@@ -27,7 +26,7 @@ test('processAutocryptHeader: is parsed and user added', function (t) {
 test('processAutocryptHeader: email not same as header.addr', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
-      keydata: Autocrypt.encodeKeydata(key.publicKeyArmored),
+      keydata: key,
       type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
@@ -48,7 +47,7 @@ test('processAutocryptHeader: email not same as header.addr', function (t) {
 test('processAutocryptHeader: type 1 is only supported type', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
-      keydata: Autocrypt.encodeKeydata(key.publicKeyArmored),
+      keydata: key,
       type: '4',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr

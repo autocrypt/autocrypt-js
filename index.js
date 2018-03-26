@@ -1,4 +1,3 @@
-var base64 = require('base64-js')
 var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
 var Mailparser = require('emailjs-mime-parser')
@@ -19,16 +18,6 @@ function Autocrypt (opts) {
 }
 
 /**
- * Turn an armored OpenPGP public key into the proper `keydata` header for sending
- * in an Autocrypt header.
- * @param  {String} publicKey An ASCII-armored OpenPGP public key.
- * @return {String}           A Base64-encoded OpenPGP public key.
- */
-Autocrypt.encodeKeydata = function (publicKey) {
-  return base64.fromByteArray(publicKey)
-}
-
-/**
  * Turn an object into a string representation of autocrypt headers.
  * @param  {Object} headers The headers to add.
  * @return {String}         A String representation of the headers to add to an email mime header.
@@ -41,7 +30,7 @@ Autocrypt.stringify = function (headers) {
     ret += `${key}=${value};`
   }
   if (!headers.type) ret += `type=1;`
-  if (headers.public_key) ret += `keydata=${Autocrypt.encodeKeydata(headers.public_key)};`
+  if (headers.public_key) ret += `keydata=${headers.public_key};`
   else if (headers.keydata) ret += `keydata=${headers.keydata};`
   else throw new Error('Either an ASCI-armored OpenPGP public_key or base64-encoded Autocrypt keydata field required.')
   return ret
@@ -147,7 +136,7 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
     cb(null, Autocrypt.stringify({
       addr: fromEmail,
       type: '1',
-      keydata: Autocrypt.encodeKeydata(from.public_key),
+      keydata: from.public_key,
       'prefer-encrypt': from['prefer-encrypt']
     }))
   })
