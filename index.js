@@ -29,8 +29,8 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (headers.keydata) ret += `keydata=${headers.keydata};`
-  else throw new Error('A base64-encoded Autocrypt `keydata` field required.')
+  if (!headers.keydata) throw new Error('A base64-encoded Autocrypt `keydata` field required.')
+  ret += `keydata=${headers.keydata.replace(/\s+/g, '').replace(/(.{72})/g, '$1\r\n  ')};`
   return ret
 }
 
