@@ -23,13 +23,6 @@ test('missingHeader: keydata not present', function (t) {
   })
 })
 
-test('missingHeader: prefer-encrypt not present', function (t) {
-  var header = {
-    addr: fromAddr
-  }
-  testMissing(t, header, 'Invalid Autocrypt Header: prefer-encrypt is required.')
-})
-
 test('missingHeader: addr not present', function (t) {
   var header = {
     'prefer-encrypt': 'mutual'

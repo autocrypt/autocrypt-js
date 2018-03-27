@@ -192,7 +192,7 @@ Autocrypt.prototype.processEmail = function (email, cb) {
 
 Autocrypt.prototype.validateHeaderValues = function (fromEmail, header) {
   if (!header) return new Error('Invalid Autocrypt Header: no valid header found')
-  var CRITICAL = ['keydata', 'addr', 'prefer-encrypt']
+  var CRITICAL = ['keydata', 'addr']
   for (var i in CRITICAL) {
     var c = CRITICAL[i]
     var msg = `Invalid Autocrypt Header: ${c} is required.`
