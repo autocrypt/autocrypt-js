@@ -79,3 +79,20 @@ test('users: create a user with private key', function (t) {
     })
   })
 })
+
+test('users: create a user with private key, then add the user later to update something', function (t) {
+  setup(email, (crypt, key, done) => {
+    crypt.createUser(email, {publicKey: key, privateKey: 'something'}, (err) => {
+      t.ifError(err)
+      crypt.addUser(email, key, {privateKey: 'foo'}, (err, user) => {
+        t.ifError(err)
+        crypt.getUser(email, (err, user) => {
+          t.ifError(err)
+          t.same(user.keydata, key, 'has keydata')
+          t.same(user.privateKey, 'something', 'same privateKey as before')
+          done(() => t.end())
+        })
+      })
+    })
+  })
+})

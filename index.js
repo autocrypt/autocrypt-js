@@ -116,12 +116,18 @@ Autocrypt.prototype.createUser = function (fromEmail, opts, cb) {
  */
 Autocrypt.prototype.addUser = function (fromEmail, publicKey, opts, cb) {
   var self = this
-  if (!cb && (typeof opts === 'function')) return self.addUser(fromEmail, publicKey, null, opts)
+  if (!cb && (typeof opts === 'function')) return self.addUser(fromEmail, publicKey, {}, opts)
   if (!publicKey || (typeof publicKey !== 'string')) return cb(new Error('publicKey required.'))
   var defaults = {
     keydata: publicKey
   }
-  self.storage.put(fromEmail, xtend(defaults, opts), cb)
+  delete opts.privateKey // make sure the privateKey can't get accidentally overriden
+  self.storage.get(fromEmail, function (_, user) {
+    // TODO: handle errors more gracefully
+    // we dont really care if it doesnt exist, we just want to update the old data
+    if (!user) user = {}
+    self.storage.put(fromEmail, xtend(user, defaults, opts), cb)
+  })
 }
 
 /**
