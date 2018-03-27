@@ -29,7 +29,6 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (!headers.type) ret += `type=1;`
   if (headers.public_key) ret += `keydata=${headers.public_key};`
   else if (headers.keydata) ret += `keydata=${headers.keydata};`
   else throw new Error('Either an ASCI-armored OpenPGP public_key or base64-encoded Autocrypt keydata field required.')
@@ -39,7 +38,7 @@ Autocrypt.stringify = function (headers) {
 /**
  *  Turn an Autocrypt MIME string into an object. Opposite of `Autocrypt.stringify`.
  * @example
- * var data = Autocrypt.parse('type=1;addr=myemail@myuniversity.edu;prefer-encrypt=mutual;keydata=Li4u;')
+ * var data = Autocrypt.parse('addr=myemail@myuniversity.edu;prefer-encrypt=mutual;keydata=Li4u;')
  * @param  {String}   header  An autocrypt header.
  * @return {Object}           Return values as an object.
  */
@@ -135,7 +134,6 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
     if (err) return cb(err)
     var opts = {
       addr: fromEmail,
-      type: '1',
       keydata: from.public_key
     }
     if (from['prefer-encrypt'] === 'mutual') {
@@ -177,14 +175,13 @@ Autocrypt.prototype.processEmail = function (email, cb) {
 
 Autocrypt.prototype.validateHeaderValues = function (fromEmail, header) {
   if (!header) return new Error('Invalid Autocrypt Header: no valid header found')
-  var CRITICAL = ['keydata', 'addr', 'type', 'prefer-encrypt']
+  var CRITICAL = ['keydata', 'addr', 'prefer-encrypt']
   for (var i in CRITICAL) {
     var c = CRITICAL[i]
     var msg = `Invalid Autocrypt Header: ${c} is required.`
     if (!header[c]) return new Error(msg)
   }
   if (header.addr !== fromEmail) return new Error('Invalid Autocrypt Header: addr not the same as from email.')
-  if (header.type && header.type.toString() !== '1') return new Error(`Invalid Autocrypt Header: the only supported type is 1. Got ${header.type}`)
 }
 
 /**
@@ -224,7 +221,6 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
       keydata: header.keydata,
       state: header['prefer-encrypt'] === 'mutual' ? 'mutual' : 'nopreference',
       fpr: header.fpr,
-      type: '1',
       addr: header.addr
     }
 

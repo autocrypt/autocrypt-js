@@ -8,7 +8,6 @@ test('processAutocryptHeader: is parsed and user added', function (t) {
     // Incoming valid email header. Process it and add it to the log.
     var header = {
       keydata: key,
-      type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
@@ -27,7 +26,6 @@ test('processAutocryptHeader: email not same as header.addr', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key,
-      type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
@@ -44,32 +42,10 @@ test('processAutocryptHeader: email not same as header.addr', function (t) {
   })
 })
 
-test('processAutocryptHeader: type 1 is only supported type', function (t) {
-  setup(fromAddr, (crypt, key, done) => {
-    var header = {
-      keydata: key,
-      type: '4',
-      'prefer-encrypt': 'mutual',
-      'addr': fromAddr
-    }
-    crypt.processAutocryptHeader(header, fromAddr, new Date(), (err) => {
-      t.ok(err, 'there should be an error')
-      t.same(err.message, 'Invalid Autocrypt Header: the only supported type is 1. Got 4')
-
-      crypt.storage.get(fromAddr, (err, record) => {
-        t.ifError(err)
-        t.same(record.state, 'reset')
-        done(() => t.end())
-      })
-    })
-  })
-})
-
 test('processAutocryptHeader: dates in the future are minimized to now', function (t) {
   setup(fromAddr, (crypt, key, done) => {
     var header = {
       keydata: key,
-      type: '1',
       'prefer-encrypt': 'mutual',
       'addr': fromAddr
     }
