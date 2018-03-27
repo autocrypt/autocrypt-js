@@ -29,9 +29,8 @@ Autocrypt.stringify = function (headers) {
     var value = headers[key]
     ret += `${key}=${value};`
   }
-  if (headers.public_key) ret += `keydata=${headers.public_key};`
-  else if (headers.keydata) ret += `keydata=${headers.keydata};`
-  else throw new Error('Either an ASCI-armored OpenPGP public_key or base64-encoded Autocrypt keydata field required.')
+  if (headers.keydata) ret += `keydata=${headers.keydata};`
+  else throw new Error('A base64-encoded Autocrypt `keydata` field required.')
   return ret
 }
 
@@ -91,6 +90,24 @@ Autocrypt.prototype.getUser = function (fromEmail, cb) {
 }
 
 /**
+ * Create a local user in autocrypt.
+ * @param {String}   fromEmail The email address.
+ * @param {Object}   opts      Public and Private keys for the email address.
+ * @param {Function} cb        Returns an error if there is a failure.
+ */
+Autocrypt.prototype.createUser = function (fromEmail, opts, cb) {
+  var self = this
+  if (!opts) opts = {}
+  if (!opts.publicKey || (typeof opts.publicKey !== 'string')) return cb(new Error('publicKey required.'))
+  if (!opts.privateKey || (typeof opts.privateKey !== 'string')) return cb(new Error('privateKey required.'))
+  var data = {
+    keydata: opts.publicKey,
+    privateKey: opts.privateKey
+  }
+  self.storage.put(fromEmail, data, cb)
+}
+
+/**
  * Add a user to autocrypt.
  * @param {String}   fromEmail The email address.
  * @param {String}   publicKey The public key associated with the email.
@@ -102,7 +119,7 @@ Autocrypt.prototype.addUser = function (fromEmail, publicKey, opts, cb) {
   if (!cb && (typeof opts === 'function')) return self.addUser(fromEmail, publicKey, null, opts)
   if (!publicKey || (typeof publicKey !== 'string')) return cb(new Error('publicKey required.'))
   var defaults = {
-    public_key: publicKey
+    keydata: publicKey
   }
   self.storage.put(fromEmail, xtend(defaults, opts), cb)
 }
@@ -134,7 +151,7 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
     if (err) return cb(err)
     var opts = {
       addr: fromEmail,
-      keydata: from.public_key
+      keydata: from.keydata
     }
     if (from['prefer-encrypt'] === 'mutual') {
       opts['prefer-encrypt'] = 'mutual'

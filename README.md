@@ -61,7 +61,7 @@ Turn an object into an Autocrypt MIME string for use in an email header.
 
 ```js
 var header = Autocrypt.stringify({
-  public_key: '---- BEGIN ...',
+  keydata: <base64-encoded-string>,
   addr: 'myemail@myuniversity.edu',
   'prefer-encrypt': 'mutual'
 })

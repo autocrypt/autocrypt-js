@@ -27,7 +27,7 @@ test('users: add and get a user with a public key has defaults', function (t) {
       t.ifError(err)
       crypt.getUser(email, (err, user) => {
         t.ifError(err)
-        t.same(user.public_key, key, 'has public_key')
+        t.same(user.keydata, key, 'has keydata')
         t.same(user['prefer-encrypt'], undefined, 'nopreference is default')
         done(() => t.end())
       })
@@ -41,7 +41,7 @@ test('users: add and get a user with overrided default prefer-encrypt', function
       t.ifError(err)
       crypt.getUser(email, (err, user) => {
         t.ifError(err)
-        t.same(user.public_key, key, 'has public_key')
+        t.same(user.keydata, key, 'has keydata')
         t.same(user['prefer-encrypt'], 'mutual', 'default is overriden')
         done(() => t.end())
       })
@@ -57,10 +57,24 @@ test('users: add and update a user', function (t) {
         t.ifError(err)
         crypt.getUser(email, (err, user) => {
           t.ifError(err)
-          t.same(user.public_key, key, 'has public_key')
+          t.same(user.keydata, key, 'has keydata')
           t.same(user['prefer-encrypt'], 'mutual', 'default is overriden')
           done(() => t.end())
         })
+      })
+    })
+  })
+})
+
+test('users: create a user with private key', function (t) {
+  setup(email, (crypt, key, done) => {
+    crypt.createUser(email, {publicKey: key, privateKey: 'something'}, (err) => {
+      t.ifError(err)
+      crypt.getUser(email, (err, user) => {
+        t.ifError(err)
+        t.same(user.keydata, key, 'has keydata')
+        t.same(user.privateKey, 'something', 'has privateKey')
+        done(() => t.end())
       })
     })
   })
