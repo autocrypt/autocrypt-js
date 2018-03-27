@@ -44,6 +44,7 @@ Autocrypt.stringify = function (headers) {
  * @return {Object}           Return values as an object.
  */
 Autocrypt.parse = function (header) {
+  header = header.replace(/\s+/g, '')
   var parts = header.split(';')
   var ret = {}
   parts.forEach(function (part) {
