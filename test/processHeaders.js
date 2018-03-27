@@ -64,3 +64,23 @@ test('processAutocryptHeader: type 1 is only supported type', function (t) {
     })
   })
 })
+
+test('processAutocryptHeader: dates in the future are minimized to now', function (t) {
+  setup(fromAddr, (crypt, key, done) => {
+    var header = {
+      keydata: key,
+      type: '1',
+      'prefer-encrypt': 'mutual',
+      'addr': fromAddr
+    }
+    var intheFuture = new Date(Date.now() + 1000 * 86000)
+    crypt.processAutocryptHeader(header, fromAddr, intheFuture, (err) => {
+      t.ifError(err)
+      crypt.storage.get(fromAddr, (err, record) => {
+        t.ifError(err)
+        t.ok(new Date(record.last_seen_autocrypt) < intheFuture)
+        done(() => t.end())
+      })
+    })
+  })
+})

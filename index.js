@@ -198,11 +198,12 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
   debug('getting record for:', fromEmail)
   var timestamp = dateSent.getTime() / 1000
   if (header && typeof header === 'string') header = Autocrypt.parse(header)
+  dateSent = Math.min(dateSent, Date.now())
   debug('header is', header)
   self.storage.get(fromEmail, function (err, record) {
     if (err && !err.notFound) return cb(err)
-    if (record && (dateSent < record.last_seen_autocrypt)) return cb()
     debug('got record for:', fromEmail, record)
+    if (record && (dateSent < record.last_seen_autocrypt)) return cb()
 
     var error = self.validateHeaderValues(fromEmail, header)
     if (error) return _onerror(error)
