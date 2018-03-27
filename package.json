@@ -1,6 +1,6 @@
 {
   "name": "autocrypt",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Autocrypt node.js client",
   "main": "index.js",
   "scripts": {
