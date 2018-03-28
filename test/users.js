@@ -84,7 +84,7 @@ test('users: create a user with private key, then add the user later to update s
   setup(email, (crypt, key, done) => {
     crypt.createUser(email, {publicKey: key, privateKey: 'something'}, (err) => {
       t.ifError(err)
-      crypt.addUser(email, key, {privateKey: 'foo'}, (err, user) => {
+      crypt.addUser(email, key, (err, user) => {
         t.ifError(err)
         crypt.getUser(email, (err, user) => {
           t.ifError(err)

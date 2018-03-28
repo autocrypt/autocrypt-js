@@ -101,10 +101,9 @@ Autocrypt.prototype.createUser = function (fromEmail, opts, cb) {
   if (!opts.publicKey || (typeof opts.publicKey !== 'string')) return cb(new Error('publicKey required.'))
   if (!opts.privateKey || (typeof opts.privateKey !== 'string')) return cb(new Error('privateKey required.'))
   var data = {
-    keydata: opts.publicKey,
     privateKey: opts.privateKey
   }
-  self.storage.put(fromEmail, data, cb)
+  self.addUser(fromEmail, opts.publicKey, data, cb)
 }
 
 /**
@@ -121,25 +120,20 @@ Autocrypt.prototype.addUser = function (fromEmail, publicKey, opts, cb) {
   var defaults = {
     keydata: publicKey
   }
-  delete opts.privateKey // make sure the privateKey can't get accidentally overriden
-  self.storage.get(fromEmail, function (_, user) {
-    // TODO: handle errors more gracefully
-    // we dont really care if it doesnt exist, we just want to update the old data
-    if (!user) user = {}
-    self.storage.put(fromEmail, xtend(user, defaults, opts), cb)
-  })
+  self.updateUser(fromEmail, xtend(defaults, opts), cb)
 }
 
 /**
  * Update an autocrypt user.
  * @param  {String}   fromEmail The email address.
  * @param  {Object}   data      The data for the email address to be updated.
- * @param  {Function} cb        Will return an error or nothing if successful.
  */
 Autocrypt.prototype.updateUser = function (fromEmail, data, cb) {
   var self = this
-  self.storage.get(fromEmail, function (err, user) {
-    if (err) return cb(err)
+  self.storage.get(fromEmail, function (_, user) {
+    // TODO: handle errors more gracefully
+    // we dont really care if it doesnt exist, we just want to have something for email
+    if (!user) user = {}
     self.storage.put(fromEmail, xtend(user, data), cb)
   })
 }
@@ -232,7 +226,7 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
     function _onerror (error) {
       debug('got an error', error)
       var data = xtend(record, {last_seen: timestamp, state: 'reset'})
-      return self.storage.put(fromEmail, data, function (err) {
+      return self.updateUser(fromEmail, data, function (err) {
         if (err) error = err
         return cb(error)
       })
@@ -249,6 +243,6 @@ Autocrypt.prototype.processAutocryptHeader = function (header, fromEmail, dateSe
 
     debug('updating record:', fromEmail, updatedRecord)
     // when valid
-    self.storage.put(fromEmail, updatedRecord, cb)
+    self.updateUser(fromEmail, updatedRecord, cb)
   })
 }

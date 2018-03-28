@@ -44,9 +44,9 @@ Add a user to autocrypt. This should be done for all new accounts. `key` should 
 * `opts`:
   * `prefer-encrypt`: `mutual` or `nopreference`. Defaults to `nopreference`.
 
-### ```autocrypt.updateUser(fromEmail, opts, cb)```
+### ```autocrypt._put(fromEmail, opts, cb)```
 
-Update a user in autocrypt. Options are the same as `addUser`.
+Update a user in autocrypt. 
 
 ### ```autocrypt.getUser(fromEmail, cb)```
 
