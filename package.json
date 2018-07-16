@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "debug": "^2.6.8",
-    "emailjs-mime-parser": "^1.0.0",
     "xtend": "^4.0.1"
   }
 }

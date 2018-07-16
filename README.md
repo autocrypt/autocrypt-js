@@ -1,6 +1,7 @@
 # autocrypt-js
 
-A Node.js implementation of the Autocrypt specification.
+A minimal Node.js implementation of the Autocrypt specification, that has no
+dependencies.
 
 [![npm][0]][1] [![Travis][2]][3] [![Test coverage][4]][5]
 
@@ -24,10 +25,6 @@ Parse the email yourself and pass in the autocrypt header, from email, and date 
 * `header`: String of the text after `Autocrypt:` or an object with all parsed autocrypt headers.
 * `fromEmail`: String.
 * `dateSent`: Date object.
-
-### ```autocrypt.processEmail(email, cb)```
-
-Take the full email string (including headers) and parse it using a built-in email parser.
 
 ### ```autocrypt.generateAutocryptHeader(fromEmail, cb)```
 

@@ -1,6 +1,5 @@
 var xtend = require('xtend')
 var debug = require('debug')('autocrypt')
-var Mailparser = require('emailjs-mime-parser')
 
 module.exports = Autocrypt
 
@@ -158,36 +157,6 @@ Autocrypt.prototype.generateAutocryptHeader = function (fromEmail, cb) {
     }
     cb(null, Autocrypt.stringify(opts))
   })
-}
-
-/**
- * Process an incoming email string, process the autocrypt headers and give information.
- * @param  {String}   email An incoming email string with all headers, including date, from, and to.
- * @param  {Function} cb    Callback
- */
-Autocrypt.prototype.processEmail = function (email, cb) {
-  var self = this
-  var parser = new Mailparser()
-  var error
-
-  function _done (err) {
-    error = err
-    parser.end()
-  }
-
-  parser.onheader = function (node) {
-    if (!node.headers.from || !node.headers.date) return _done(new Error('No from and date field, is that expected behavior?'))
-    var fromEmail = node.headers.from[0].initial // TODO: should check value. what happens if from two people?
-    var dateSent = new Date(node.headers.date[0].value)
-    var autocryptHeader = node.headers.autocrypt
-    if (autocryptHeader.length > 1) return _done(new Error('Invalid Autocrypt Header: Only one autocrypt header allowed.'))
-    else autocryptHeader = autocryptHeader ? autocryptHeader[0].initial : null
-    self.processAutocryptHeader(autocryptHeader, fromEmail, dateSent, _done)
-  }
-  parser.onend = function () {
-    cb(error)
-  }
-  parser.write(email)
 }
 
 Autocrypt.prototype.validateHeaderValues = function (fromEmail, header) {
