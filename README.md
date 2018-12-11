@@ -16,7 +16,6 @@ npm install autocrypt
 
 Options include:
 * `storage`: the storage to use for internal state. Must implement `get` and `put` methods. (`{get(fromEmail, cb), put(fromEmail, data, cb)}`)
-* `dir`: the directory for storing the internal state.
 
 ### ```autocrypt.processHeader(header, fromEmail, dateSent, cb)```
 
@@ -43,7 +42,7 @@ Add a user to autocrypt. This should be done for all new accounts. `key` should 
 
 ### ```autocrypt._put(fromEmail, opts, cb)```
 
-Update a user in autocrypt. 
+Update a user in autocrypt.
 
 ### ```autocrypt.getUser(fromEmail, cb)```
 
