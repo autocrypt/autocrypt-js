@@ -64,16 +64,6 @@ var header = Autocrypt.stringify({
 })
 ```
 
-You can also pass the Autocrypt base-64 encoded `keydata` directly.
-
-```js
-var header = Autocrypt.stringify({
-  keydata: 'pYEWY0RSAEER1+gQRtZECyyww67....',
-  addr: 'myemail@myuniversity.edu',
-  'prefer-encrypt': 'mutual'
-})
-```
-
 A value of `type=1` is automatically added to the header if not supplied, since at this time Autocrypt only supports `type=1`.
 
 ### ```Autocrypt.parse(header)```
